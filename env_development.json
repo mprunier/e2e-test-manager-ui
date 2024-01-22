@@ -1,0 +1,7 @@
+{
+  "API_URL": "http://localhost:9205/end-to-end-testing",
+  "API_WEBSOCKET_URL": "ws://localhost:60000",
+  "KEYCLOAK_REALM": "galaxion",
+  "KEYCLOAK_CLIENT": "e2e-testing-manager-ui",
+  "KEYCLOAK_URL": "https://keycloak.dev.epicmt.internal/auth"
+}

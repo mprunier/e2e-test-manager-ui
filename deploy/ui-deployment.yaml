@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: e2e-testing-manager-ui
+  namespace: test-e2e
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: e2e-testing-manager-ui
+  template:
+    metadata:
+      labels:
+        app: e2e-testing-manager-ui
+    spec:
+      imagePullSecrets:
+        - name: nexus-docker-registry-credentials
+      containers:
+        - name: e2e-testing-manager-ui
+          image: nexus.itsf.io:5005/itsffr/tools/e2e-testing-manager-ui:0.7.0
+          imagePullPolicy: Always
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            limits:
+              cpu: "2"
+              memory: "2048Mi"
+            requests:
+              cpu: "1"
+              memory: "1024Mi"
+          env:
+            - name: API_URL
+              value: https://e2e-testing-manager-api.itsf.io
+            - name: API_WEBSOCKET_URL
+              value: wss://e2e-testing-manager-api.itsf.io
+            - name: KEYCLOAK_REALM
+              value: ITSF-PRIVATE
+            - name: KEYCLOAK_CLIENT
+              value: e2e-testing-manager-ui
+            - name: KEYCLOAK_URL
+              value: https://iam.itsffr.internal

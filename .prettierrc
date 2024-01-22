@@ -1,0 +1,14 @@
+{
+    "tabWidth": 4,
+    "printWidth": 120,
+    "endOfLine": "auto",
+    "overrides": [
+        {
+            "files": ["*.md", "*.json"],
+            "options": {
+                "tabWidth": 2
+            }
+        }
+    ],
+    "plugins": ["prettier-plugin-tailwindcss"]
+}
