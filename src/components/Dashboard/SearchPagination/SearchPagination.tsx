@@ -25,7 +25,7 @@ const sortFieldLabels: Record<EConfigurationSuiteSortField, string> = {
 
 const SortArrow: FC<{ order: EConfigurationSuiteSortOrder }> = ({ order }) => (
     <svg
-        className={`h-5 w-5 ${order === EConfigurationSuiteSortOrder.DESC ? "rotate-180 transform" : ""}`}
+        className={`h-5 w-5 ${order === EConfigurationSuiteSortOrder.ASC ? "rotate-180 transform" : ""}`}
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"

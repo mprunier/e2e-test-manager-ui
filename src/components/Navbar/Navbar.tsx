@@ -19,7 +19,7 @@ export default function Navbar() {
             current: location.pathname === "/configuration",
         });
     }
-    navigation.push({ name: "Helper", to: "/helper", current: location.pathname === "/helper" });
+    // navigation.push({ name: "Helper", to: "/helper", current: location.pathname === "/helper" });
 
     return (
         <Disclosure as="nav" className="bg-gray-800">
