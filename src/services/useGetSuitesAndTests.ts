@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { objectToQuery } from "../utils/urlUtils.ts";
 import { useEnvironmentContext } from "../hooks/useEnvironmentContext.ts";
 import useSWR, { SWRConfiguration } from "swr";
@@ -67,30 +67,33 @@ export const useGetSuitesAndTests = () => {
         sortOrder: storedPaginationSettings?.sortOrder ?? EConfigurationSuiteSortOrder.DESC,
     }));
 
+    const prevPaginationRef = useRef<StoredPaginationSettings>({
+        page: formValues.page,
+        size: formValues.size,
+        sortField: formValues.sortField,
+        sortOrder: formValues.sortOrder,
+    });
+
     useEffect(() => {
-        saveInStorage({
+        const currentPagination = {
             page: formValues.page,
             size: formValues.size,
             sortField: formValues.sortField,
             sortOrder: formValues.sortOrder,
-        });
+        };
+
+        if (JSON.stringify(currentPagination) !== JSON.stringify(prevPaginationRef.current)) {
+            saveInStorage(currentPagination);
+            prevPaginationRef.current = currentPagination;
+        }
     }, [formValues.page, formValues.size, formValues.sortField, formValues.sortOrder, saveInStorage]);
 
-    const setFormValuesAndSave = useCallback(
-        (newValues: Partial<FormValues>) => {
-            setFormValues((prevValues) => {
-                const updatedValues = { ...prevValues, ...newValues };
-                saveInStorage({
-                    page: updatedValues.page,
-                    size: updatedValues.size,
-                    sortField: updatedValues.sortField,
-                    sortOrder: updatedValues.sortOrder,
-                });
-                return updatedValues;
-            });
-        },
-        [saveInStorage],
-    );
+    const setFormValuesAndSave = useCallback((newValues: Partial<FormValues>) => {
+        setFormValues((prevValues) => ({
+            ...prevValues,
+            ...newValues,
+        }));
+    }, []);
 
     const query = `${objectToQuery(formValuesToRecord(formValues))}`;
     const queryWithEnv =
