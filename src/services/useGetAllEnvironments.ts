@@ -7,7 +7,6 @@ export const useSwrGetEnvironments = (all?: boolean, options: SWRConfiguration<I
         ...options,
         fetcher: () => getEnvironmentsApiRoute(all),
         revalidateOnFocus: false,
-        refreshInterval: 60000,
     });
 
 export const useGetEnvironments = (all?: boolean) => {

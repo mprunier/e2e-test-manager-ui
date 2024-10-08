@@ -23,6 +23,7 @@ export const buildEnvironmentForm = (environment?: IEnvironment): ICreateUpdateE
         branch: environment?.branch ?? "",
         token: environment?.token ?? "",
         projectId: environment?.projectId ?? "",
+        maxParallelTestNumber: environment?.maxParallelTestNumber ?? 0,
         variables: environment?.variables ? buildEnvironmentVariablesForm(environment?.variables) : [],
     };
 };

@@ -10,13 +10,13 @@ export const App = () => {
     const renderApp = () => {
         return (
             <>
-                <div className="flex h-screen flex-col items-center justify-center lg:hidden">
+                <div className="flex h-screen flex-col items-center justify-center xl:hidden">
                     <p className="mt-4 text-center text-lg font-bold text-red-800">
                         Oops, not designed for little screens!
                     </p>
                     <img src="/images/lel.png" className="h-60 w-60" />
                 </div>
-                <div className="hidden lg:block">
+                <div className="hidden xl:block">
                     <div className="flex min-h-screen flex-col bg-gray-100">
                         <Navbar />
                         <div className="flex flex-grow flex-col">

@@ -13,7 +13,7 @@ interface IParams {
     formValues: {
         configurationSuiteId: string;
         configurationTestId: string;
-        configurationTestTag: string;
+        tag: string;
         status: string;
         file: string;
         allNotSuccess: boolean;
@@ -49,7 +49,7 @@ export const SearchBar = (props: IParams) => {
             configurationTestId: "",
             configurationSuiteId: "",
             file: "",
-            configurationTestTag: "",
+            tag: "",
             allNotSuccess: checked,
             status: "",
             page: 0,
@@ -61,7 +61,7 @@ export const SearchBar = (props: IParams) => {
             configurationTestId: "",
             configurationSuiteId: "",
             file: "",
-            configurationTestTag: selectedOption ? selectedOption.value.toString() : "",
+            tag: selectedOption ? selectedOption.value.toString() : "",
             allNotSuccess: false,
             page: 0,
         });
@@ -72,7 +72,7 @@ export const SearchBar = (props: IParams) => {
             file: selectedOption ? selectedOption.value.toString() : "",
             configurationTestId: "",
             configurationSuiteId: "",
-            configurationTestTag: "",
+            tag: "",
             allNotSuccess: false,
             page: 0,
         });
@@ -83,7 +83,7 @@ export const SearchBar = (props: IParams) => {
             configurationSuiteId: selectedOption ? selectedOption.value.toString() : "",
             configurationTestId: "",
             file: "",
-            configurationTestTag: "",
+            tag: "",
             allNotSuccess: false,
             page: 0,
         });
@@ -94,7 +94,7 @@ export const SearchBar = (props: IParams) => {
             configurationTestId: selectedOption ? selectedOption.value.toString() : "",
             configurationSuiteId: "",
             file: "",
-            configurationTestTag: "",
+            tag: "",
             allNotSuccess: false,
             page: 0,
         });
@@ -128,12 +128,10 @@ export const SearchBar = (props: IParams) => {
             value: test.id.toString(),
             label: test.title,
         })) || [];
-    const statusOptions = Object.entries(EConfigurationStatus)
-        .filter(([, value]) => value !== EConfigurationStatus.NEW)
-        .map(([, value]) => ({
-            value,
-            label: getStatusViewer(value),
-        }));
+    const statusOptions = Object.entries(EConfigurationStatus).map(([, value]) => ({
+        value,
+        label: getStatusViewer(value),
+    }));
 
     return (
         <div className="mb-8 rounded-2xl bg-gray-50 p-2 pt-4 shadow-sm">
@@ -163,9 +161,10 @@ export const SearchBar = (props: IParams) => {
                 <div className="w-2/12">
                     <SelectWithSearch
                         options={tagsOptions}
-                        value={tagsOptions.find((opt) => opt.value === formValues.configurationTestTag)}
+                        value={tagsOptions.find((opt) => opt.value === formValues.tag)}
                         onChange={handleTagChange}
                         placeholder="Select tag..."
+                        noOptionPlaceholder={"No tags found..."}
                         isLoading={tagsLoading}
                         isError={tagsError}
                     />
@@ -177,6 +176,7 @@ export const SearchBar = (props: IParams) => {
                         value={suitesOptions.find((opt) => opt.value === formValues.configurationSuiteId)}
                         onChange={handleSuiteChange}
                         placeholder="Select Suite..."
+                        noOptionPlaceholder={"No suite found..."}
                         isLoading={suitesLoading}
                         isError={suitesError}
                     />
@@ -188,6 +188,7 @@ export const SearchBar = (props: IParams) => {
                         value={testsOptions.find((opt) => opt.value === formValues.configurationTestId)}
                         onChange={handleTestChange}
                         placeholder="Select Test..."
+                        noOptionPlaceholder={"No test found..."}
                         isLoading={testsLoading}
                         isError={testsError}
                     />
@@ -199,6 +200,7 @@ export const SearchBar = (props: IParams) => {
                         value={filesOptions.find((opt) => opt.value === formValues.file)}
                         onChange={handleFileChange}
                         placeholder="Select File..."
+                        noOptionPlaceholder={"No file found..."}
                         isLoading={filesLoading}
                         isError={filesError}
                     />
@@ -209,7 +211,7 @@ export const SearchBar = (props: IParams) => {
                         options={statusOptions}
                         value={statusOptions.find((opt) => opt.value === formValues.status)}
                         onChange={handleStatusChange}
-                        placeholder="Select Suite Status..."
+                        placeholder="Select Status..."
                     />
                 </div>
             </div>

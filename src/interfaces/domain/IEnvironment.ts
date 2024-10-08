@@ -1,5 +1,3 @@
-import { EConfigurationStatus } from "../../constants.ts";
-
 export interface IEnvironmentVariable {
     id: number;
     name: string;
@@ -17,13 +15,11 @@ export interface IEnvironment {
     variables?: IEnvironmentVariable[];
     createdBy?: string;
     isEnabled?: boolean;
-    isLocked?: boolean;
     updatedBy?: string;
     createdAt?: Date;
     updatedAt?: Date;
-    schedulerStatus: EConfigurationStatus;
-    isRunningAllTests: boolean;
-    lastAllTestsError?: string;
+    isLocked?: boolean;
+    maxParallelTestNumber: number;
 }
 
 export function isIEnvironmentStored(object: unknown): object is IEnvironment {

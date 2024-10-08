@@ -1,13 +1,10 @@
 import { useFetchState } from "../hooks/useFetchState.ts";
 import { postRunSchedulerApiRoute } from "../endpoints/privateEndpoints.ts";
-import { useIsRunningAllTests } from "../stores/useEnvironmentStore.ts";
 import { useEnvironmentContext } from "../hooks/useEnvironmentContext.ts";
 
 export const useRunAllTests = () => {
     const { environment } = useEnvironmentContext();
-    const { isLoading: isRunLoading, startFetching, endFetchingError, endFetchingSuccess } = useFetchState();
-
-    const isRunningAllTests = useIsRunningAllTests();
+    const { isLoading: runIsLoading, startFetching, endFetchingError, endFetchingSuccess } = useFetchState();
 
     const run = async () => {
         startFetching();
@@ -21,6 +18,6 @@ export const useRunAllTests = () => {
 
     return {
         run,
-        runIsLoading: isRunLoading || isRunningAllTests,
+        runIsLoading: runIsLoading,
     };
 };

@@ -1,9 +1,6 @@
-import { EConfigurationStatus, EConfigurationSynchronizationStatus } from "../constants.ts";
+import { EConfigurationStatus } from "../constants.ts";
 
 export const classNameBg = (status: EConfigurationStatus): string => {
-    if (status === EConfigurationStatus.IN_PROGRESS) {
-        return "bg-blue-100 animate-pulse";
-    }
     if (status === EConfigurationStatus.SUCCESS) {
         return "bg-green-50";
     }
@@ -20,9 +17,6 @@ export const classNameBg = (status: EConfigurationStatus): string => {
 };
 
 export const classNameStatus = (status: EConfigurationStatus): string => {
-    if (status === EConfigurationStatus.IN_PROGRESS) {
-        return "bg-blue-300 animate-pulse";
-    }
     if (status === EConfigurationStatus.SUCCESS) {
         return "bg-green-300";
     }
@@ -73,17 +67,4 @@ export const getStatusViewer = (status: EConfigurationStatus): string => {
         return "Partially Skipped";
     }
     return "Failed";
-};
-
-export const getStatusSyncViewer = (status: EConfigurationSynchronizationStatus): string => {
-    if (status === EConfigurationSynchronizationStatus.IN_PROGRESS) {
-        return "is in progress";
-    }
-    if (status === EConfigurationSynchronizationStatus.SUCCESS) {
-        return "success";
-    }
-    if (status === EConfigurationSynchronizationStatus.FAILED) {
-        return "failed";
-    }
-    return "never synchronized";
 };

@@ -5,21 +5,34 @@ import LoginLogout from "./LoginLogout/LoginLogout.tsx";
 import EnvironmentSelector from "./EnvironmentSelector/EnvironmentSelector.tsx";
 import { keycloakUtils } from "../../utils/Keycloak/keycloakUtils.ts";
 import { SyncErrors } from "./SyncErrors/SyncErrors.tsx";
+import { useEnvironmentContext } from "../../hooks/useEnvironmentContext.ts";
 
 export default function Navbar() {
     const location = useLocation();
+    const { environment } = useEnvironmentContext();
 
-    const navigation = [{ name: "Dashboard", to: "/", current: location.pathname === "/" }];
+    const getNavigation = () => {
+        const baseUrl = environment ? `/env/${environment.id}` : "/";
+        const items = [
+            {
+                name: "Dashboard",
+                to: baseUrl,
+                current: location.pathname === baseUrl || location.pathname === "/",
+            },
+        ];
 
-    const isConnected = keycloakUtils.isAuthenticated();
-    if (isConnected) {
-        navigation.push({
-            name: "Configuration",
-            to: "/configuration",
-            current: location.pathname === "/configuration",
-        });
-    }
-    navigation.push({ name: "Helper", to: "/helper", current: location.pathname === "/helper" });
+        const isConnected = keycloakUtils.isAuthenticated();
+        if (isConnected) {
+            const configPath = `${baseUrl}/configuration`;
+            items.push({
+                name: "Configuration",
+                to: configPath,
+                current: location.pathname === configPath,
+            });
+        }
+
+        return items;
+    };
 
     return (
         <Disclosure as="nav" className="bg-gray-800">
@@ -31,7 +44,7 @@ export default function Navbar() {
                         </div>
                         <div className="hidden sm:ml-6 sm:block">
                             <div className="flex space-x-4">
-                                {navigation.map((item) => (
+                                {getNavigation().map((item) => (
                                     <Link key={item.name} to={item.to}>
                                         <div
                                             className={classNames(

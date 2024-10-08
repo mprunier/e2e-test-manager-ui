@@ -1,29 +1,31 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { IEnvironment } from "../../../interfaces/domain/IEnvironment.ts";
 import { useEnvironmentContext } from "../../../hooks/useEnvironmentContext";
 import { useGetEnvironments } from "../../../services/useGetAllEnvironments.ts";
+import { matchPath, useNavigate } from "react-router-dom";
 
 interface IParams {
     all?: boolean;
 }
 
 export const useEnvironments = ({ all }: IParams) => {
+    const navigate = useNavigate();
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const { environment, shouldInitializeStorage, clearEnvironment, setEnvironment } = useEnvironmentContext();
+    const { environment, setEnvironment } = useEnvironmentContext();
     const { environmentsData, getEnvironmentsState, mutateEnvironments } = useGetEnvironments(all);
-
-    useEffect(() => {
-        if (shouldInitializeStorage && environmentsData && environmentsData.length > 0) {
-            clearEnvironment();
-            setEnvironment(environmentsData[0]);
-        }
-    }, [clearEnvironment, setEnvironment, shouldInitializeStorage, environmentsData]);
 
     const handleChangeEnvironment = useCallback(
         (environmentSelected: IEnvironment) => {
             setEnvironment(environmentSelected);
+
+            const match = matchPath({ path: "/env/:envId/*" }, location.pathname);
+            const subPath = match?.params["*"] || "";
+
+            const newPath = `/env/${environmentSelected.id}${subPath ? `/${subPath}` : ""}`;
+
+            navigate(newPath);
         },
-        [setEnvironment],
+        [setEnvironment, navigate, location.pathname],
     );
 
     return {

@@ -35,3 +35,12 @@ export enum EDayOfWeek {
     SATURDAY = "SATURDAY",
     SUNDAY = "SUNDAY",
 }
+
+export enum EPipelineStatus {
+    IN_PROGRESS = "IN_PROGRESS",
+    SUCCESS = "SUCCESS",
+    FAILED = "FAILED",
+    CANCELED = "CANCELED",
+    SYSTEM_ERROR = "SYSTEM_ERROR",
+    NO_REPORT_ERROR = "NO_REPORT_ERROR",
+}

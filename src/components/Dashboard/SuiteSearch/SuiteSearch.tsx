@@ -1,5 +1,4 @@
 import { Fragment, useState } from "react";
-
 import { classNameStatus, getStatusViewer } from "../../../utils/statusUtils.ts";
 import { classNames } from "../../../utils/classNameUtils.ts";
 import RunActionButton from "../RunActionButton/RunActionButton.tsx";
@@ -17,9 +16,14 @@ import { EConfigurationStatus } from "../../../constants.ts";
 import { IConfigurationTest } from "../../../interfaces/domain/IConfigurationTest.tsx";
 import { useGetSuitesAndTests } from "../../../services/useGetSuitesAndTests.ts";
 import { IConfigurationSuite } from "../../../interfaces/domain/IConfigurationSuite.tsx";
+import TruncatedTextWithTooltip from "../../Common/TruncatedTextWithTooltip/TruncatedTextWithTooltip.tsx";
+import { ChevronDown, ChevronUp, List } from "lucide-react";
+import { PipelineIndicator } from "./PipelineIndicator.tsx";
+import { useCancelPipeline } from "../../../services/useCancelPipeline.tsx";
 
 export const SuiteSearch = () => {
     const { getSuitesAndTestsState, suitesAndTestsData, formValues, setFormValues } = useGetSuitesAndTests();
+    const { cancel, cancelIsLoading } = useCancelPipeline();
     const [selectedTest, setSelectedTest] = useState<IConfigurationTest | null>(null);
     const [selectedSuite, setSelectedSuite] = useState<IConfigurationSuite | null>(null);
 
@@ -42,107 +46,77 @@ export const SuiteSearch = () => {
             {tests.map((test) => (
                 <Fragment key={test.id}>
                     <div
-                        className={`m-1 flex h-9 cursor-pointer items-center rounded-xl bg-cyan-50 p-2`}
+                        className={`mt-1 flex h-9 cursor-pointer items-center rounded-xl bg-cyan-50 p-2`}
                         onClick={() => setSelectedTest(selectedTest?.id === test.id ? null : test)}
                     >
-                        <Tooltip
-                            disabled={!test.tags || test.tags.length === 0}
-                            content={test.tags ? getTagsContent(test.tags) : undefined}
-                            position="right"
-                            size={"w-80"}
-                        >
-                            <div className="text-cyan-600">
-                                {test.tags && test.tags.length > 0 && (
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        strokeWidth="1.8"
-                                        stroke="currentColor"
-                                        className="mr-1 h-4 w-4"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
-                                        />
-                                    </svg>
-                                )}
-                            </div>
-                        </Tooltip>
                         <div
-                            className={`mr-4 flex w-8/12 flex-none items-start text-sm font-medium text-cyan-600 ${
-                                !test.tags || test.tags.length === 0 ? "ml-5" : ""
-                            }`}
+                            className={`mr-4 flex w-7/12 flex-none items-start text-sm font-medium text-cyan-600 lg:w-8/12`}
                         >
-                            <div className="w-full truncate">{test.title}</div>
+                            <Tooltip
+                                disabled={!test.tags || test.tags.length === 0}
+                                content={test.tags ? getTagsContent(test.tags) : undefined}
+                                position="right"
+                                size={"w-80"}
+                            >
+                                <div className="text-cyan-600">
+                                    {test.tags && test.tags.length > 0 && <List className="mr-2 mt-0.5 h-4 w-4" />}
+                                </div>
+                            </Tooltip>
+                            <TruncatedTextWithTooltip text={test.title} className="w-full truncate pr-6" />
                         </div>
 
-                        <div className="ml-0.5 flex w-2/12 flex-none items-start">
+                        <div className="ml-0.5 flex w-3/12 flex-none items-start lg:w-2/12">
                             <Tooltip
                                 disabled={!test.lastPlayedAt}
                                 content={`${test.lastPlayedAt ? formatDateTime(new Date(test.lastPlayedAt)) : ``}`}
                                 position="bottom"
+                                size={"w-40"}
                             >
                                 <span
                                     className={classNames(
                                         classNameStatus(test.status),
-                                        "inline-block w-[140px] rounded-full px-3 py-1 text-center text-sm",
+                                        `inline-block w-[140px] rounded-full px-3 py-1 text-center text-sm ${
+                                            test.pipelinesInProgress && test.pipelinesInProgress.length > 0
+                                                ? "animate-pulse border-2 border-blue-300"
+                                                : ""
+                                        }`,
                                     )}
                                 >
                                     {getStatusViewer(test.status)}
                                 </span>
                             </Tooltip>
+                            <div className="pl-2 pt-1">
+                                <PipelineIndicator
+                                    pipelinesInProgress={test.pipelinesInProgress}
+                                    onCancelPipeline={cancel}
+                                    cancelIsLoading={cancelIsLoading}
+                                />
+                            </div>
                             {test.status === EConfigurationStatus.NEW && (
                                 <div className={"pl-2"}>
                                     <NewSVG />
                                 </div>
                             )}
                         </div>
-                        <div className="flex w-2/12 flex-none items-start">
+                        <div className="flex w-2/12 flex-none items-start justify-between">
                             <RunActionButton
                                 configurationTestId={test.id}
-                                disabled={!isConnected || test.status === EConfigurationStatus.IN_PROGRESS}
+                                disabled={
+                                    !isConnected ||
+                                    (test.pipelinesInProgress &&
+                                        test.pipelinesInProgress.filter((pipeline) => !pipeline.isAllTests).length > 0)
+                                }
                                 isConnected={isConnected}
                                 variables={test.variables}
                                 isTestLoading={test.status === EConfigurationStatus.IN_PROGRESS}
                             />
-                            {selectedTest?.id !== test.id && (
-                                <div className="ml-2">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        className="h-6 w-6"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth="2"
-                                            d="M19 9l-7 7-7-7"
-                                        ></path>
-                                    </svg>
-                                </div>
-                            )}
-                            {selectedTest?.id === test.id && selectedTest !== null && (
-                                <div className="ml-2">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        className="h-6 w-6"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth="2"
-                                            d="M5 15l7-7 7 7"
-                                        ></path>
-                                    </svg>
-                                </div>
-                            )}
+                            <div className="m-1 mr-6">
+                                {selectedTest?.id === test.id ? (
+                                    <ChevronUp className="h-5 w-5 text-gray-500" />
+                                ) : (
+                                    <ChevronDown className="h-5 w-5 text-gray-500" />
+                                )}
+                            </div>
                         </div>
                     </div>
                     {selectedTest?.id === test.id && <ResultTestViewer configurationTestId={test.id} />}
@@ -157,13 +131,27 @@ export const SuiteSearch = () => {
                 <Fragment key={suite.id}>
                     <div
                         onClick={() => setSelectedSuite(selectedSuite?.id === suite.id ? null : suite)}
-                        className={`mt-4 flex h-12 items-center rounded-b-md rounded-t-xl bg-indigo-50 p-2`}
+                        className={`mt-4 flex h-12 items-center rounded-xl bg-indigo-50 p-2`}
                         style={{ cursor: "pointer" }}
                     >
                         <div className={"mr-4 flex w-8/12 flex-none flex-col items-start"}>
-                            <div className="m-1 w-full truncate text-sm font-medium text-cyan-800">{suite.title}</div>
-                            <div className="mb-1 w-full truncate pl-1 pr-3 text-xs text-amber-800">{suite.file}</div>
+                            <TruncatedTextWithTooltip
+                                text={suite.title}
+                                className="m-1 w-full text-sm font-medium text-cyan-800"
+                            />
+                            <div className="flex items-center gap-1">
+                                {suite.group && (
+                                    <span className="mb-1 rounded-3xl bg-indigo-200 px-1 text-xs font-medium text-white">
+                                        {suite.group}
+                                    </span>
+                                )}
+                                <TruncatedTextWithTooltip
+                                    text={suite.file}
+                                    className="mb-1 w-full truncate pl-1 pr-3 text-xs text-amber-800"
+                                />
+                            </div>
                         </div>
+
                         <div className="flex w-2/12 flex-none items-start">
                             <Tooltip
                                 disabled={!suite.lastPlayedAt}
@@ -174,63 +162,49 @@ export const SuiteSearch = () => {
                                 <span
                                     className={classNames(
                                         classNameStatus(suite.status),
-                                        "ml-5 inline-block w-[140px] rounded-full px-3 py-1 text-center text-sm",
+                                        `inline-block w-[140px] rounded-full px-3 py-1 text-center text-sm ${
+                                            suite.pipelinesInProgress && suite.pipelinesInProgress.length > 0
+                                                ? "animate-pulse border-2 border-blue-300"
+                                                : ""
+                                        }`,
                                     )}
                                 >
                                     {getStatusViewer(suite.status)}
                                 </span>
                             </Tooltip>
+                            <div className="pl-2 pt-1">
+                                <PipelineIndicator
+                                    pipelinesInProgress={suite.pipelinesInProgress}
+                                    onCancelPipeline={cancel}
+                                    cancelIsLoading={cancelIsLoading}
+                                />
+                            </div>
                             {suite.hasNewTest && (
                                 <div className={"pl-2"}>
                                     <NewSVG />
                                 </div>
                             )}
                         </div>
-                        <div className="flex w-2/12 flex-none items-start">
-                            <div className={"ml-5"} />
+
+                        <div className="flex w-2/12 flex-none items-start justify-between">
                             <RunActionButton
                                 configurationSuiteId={suite.id}
-                                disabled={!isConnected || suite.status === EConfigurationStatus.IN_PROGRESS}
+                                disabled={
+                                    !isConnected ||
+                                    (suite.pipelinesInProgress &&
+                                        suite.pipelinesInProgress.filter((pipeline) => !pipeline.isAllTests).length > 0)
+                                }
                                 isConnected={isConnected}
                                 variables={suite.variables}
                                 isTestLoading={suite.status === EConfigurationStatus.IN_PROGRESS}
                             />
-                            {selectedSuite?.id !== suite.id && (
-                                <div className="ml-2">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        className="h-6 w-6"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth="2"
-                                            d="M19 9l-7 7-7-7"
-                                        ></path>
-                                    </svg>
-                                </div>
-                            )}
-                            {selectedSuite?.id === suite.id && selectedSuite !== null && (
-                                <div className="ml-2">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        className="h-6 w-6"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth="2"
-                                            d="M5 15l7-7 7 7"
-                                        ></path>
-                                    </svg>
-                                </div>
-                            )}
+                            <div className="mr-6">
+                                {selectedSuite?.id === suite.id ? (
+                                    <ChevronUp className="mt-1 h-5 w-5 text-gray-500" />
+                                ) : (
+                                    <ChevronDown className="mt-1 h-5 w-5 text-gray-500" />
+                                )}
+                            </div>
                         </div>
                     </div>
                     {selectedSuite?.id === suite.id && renderTests(suite.tests)}

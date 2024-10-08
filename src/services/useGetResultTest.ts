@@ -1,9 +1,9 @@
-import { useCallback } from "react";
 import useSWR, { SWRConfiguration } from "swr";
 import { getResultTestApiRoute } from "../endpoints/publicEndpoints.ts";
-import { EEventType, IEvent } from "../interfaces/websockets/IWebSocketEvents.ts";
+import { EEventType } from "../interfaces/websockets/IWebSocketEvents.ts";
 import { useWebSocketEvent } from "../hooks/useWebSocketEvent.tsx";
 import { ITest } from "../interfaces/domain/ITest.tsx";
+import { useResultTestsWebSocketHandlers } from "../handlers/useResultTestsWebSocketHandlers.ts";
 
 const useSwrGetResultTest = (configurationTestId: number, options: SWRConfiguration<ITest[]> = {}) =>
     useSWR<ITest[]>(["useSwrGetResultTest", configurationTestId], {
@@ -21,17 +21,8 @@ export const useGetResultTest = (props: IParams) => {
 
     const { data, error, mutate, isLoading } = useSwrGetResultTest(configurationTestId);
 
-    const handleCompleteRefreshEvent = useCallback(
-        async (event: IEvent) => {
-            console.log(`${event.eventType} Event - Complete Refresh`);
-            await mutate();
-        },
-        [mutate],
-    );
-    useWebSocketEvent(EEventType.ALL_TESTS_RUN_IN_PROGRESS_EVENT, handleCompleteRefreshEvent);
-    useWebSocketEvent(EEventType.ALL_TESTS_RUN_COMPLETED_EVENT, handleCompleteRefreshEvent);
-    useWebSocketEvent(EEventType.TEST_RUN_IN_PROGRESS_EVENT, handleCompleteRefreshEvent);
-    useWebSocketEvent(EEventType.TEST_RUN_COMPLETED_EVENT, handleCompleteRefreshEvent);
+    const { handleRunCompletedEvent } = useResultTestsWebSocketHandlers(mutate);
+    useWebSocketEvent(EEventType.RUN_COMPLETED_EVENT, handleRunCompletedEvent);
 
     return { getResultTestState: { isLoading, error }, resultTestData: data, mutateResultTest: mutate };
 };

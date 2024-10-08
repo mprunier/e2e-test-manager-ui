@@ -71,6 +71,28 @@ export const EnvironmentUpdateForm = (props: IParams) => {
             </div>
 
             <div className="flex flex-col space-y-2">
+                <label htmlFor="maxParallelTestNumber" className="text-sm font-medium text-gray-700">
+                    Max Parallel Test Number (When all tests are run)
+                </label>
+                <input
+                    id="maxParallelTestNumber"
+                    {...register("maxParallelTestNumber", {
+                        required: "Max Parallel Test Number is required",
+                    })}
+                    type="number"
+                    min="1"
+                    max="8"
+                    step="1"
+                    className={`w-full rounded-md border p-2 ${
+                        errors.maxParallelTestNumber ? "border-red-500" : "border-gray-300"
+                    }`}
+                />
+                {errors.maxParallelTestNumber && (
+                    <p className="mt-1 text-xs text-red-600">{errors.maxParallelTestNumber.message}</p>
+                )}
+            </div>
+
+            <div className="flex flex-col space-y-2">
                 <label className="text-sm font-medium text-gray-700">Variables</label>
                 <ul className="space-y-4">
                     {fields.map((field, index) => (

@@ -1,4 +1,4 @@
-import { FC, ReactNode, useCallback, useEffect } from "react";
+import { FC, ReactNode, useCallback } from "react";
 import { useStorage } from "../hooks/useStorage.ts";
 import { IEnvironment, isIEnvironmentStored } from "../interfaces/domain/IEnvironment.ts";
 import { EnvironmentContext } from "../contexts/EnvironmentContext.tsx";
@@ -17,29 +17,11 @@ export const EnvironmentProvider: FC<IParams> = ({ children }) => {
 
     const setEnvironment = useCallback(
         (newEnvironment: IEnvironment) => {
+            localStorage.setItem(STORAGE_KEY_SELECTED_ENVIRONMENT, JSON.stringify(newEnvironment));
             saveInStorage(newEnvironment);
         },
         [saveInStorage],
     );
-
-    const handleEnvironmentChange = useCallback(
-        (storageEvent: StorageEvent) => {
-            if (storageEvent.key === STORAGE_KEY_SELECTED_ENVIRONMENT && storageEvent.newValue !== null) {
-                try {
-                    const newEnvironment = JSON.parse(storageEvent.newValue);
-                    setEnvironment(newEnvironment);
-                } catch (error) {
-                    console.error("Error parsing environment:", error);
-                }
-            }
-        },
-        [setEnvironment],
-    );
-
-    useEffect(() => {
-        window.addEventListener("storage", handleEnvironmentChange);
-        return () => window.removeEventListener("storage", handleEnvironmentChange);
-    }, [handleEnvironmentChange]);
 
     return (
         <EnvironmentContext.Provider

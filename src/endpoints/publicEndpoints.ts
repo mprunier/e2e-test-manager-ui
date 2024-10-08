@@ -7,6 +7,7 @@ import { IConfigurationSuite } from "../interfaces/domain/IConfigurationSuite.ts
 import { IConfigurationScheduler } from "../interfaces/domain/IConfigurationScheduler.tsx";
 import { IMetrics } from "../interfaces/domain/IMetrics.tsx";
 import { ITest } from "../interfaces/domain/ITest.tsx";
+import { IPipeline } from "../interfaces/domain/IPipeline.tsx";
 
 const api = `${process.env.API_URL}`;
 
@@ -18,6 +19,11 @@ export const getEnvironmentApiRoute = (id: number, options: IFetchOptions = {}) 
 
 export const getEnvironmentsApiRoute = (all?: boolean, options: IFetchOptions = {}) =>
     fetcher<IEnvironment[]>(`${api}/environments${all ? `?all=${all}` : ``}`, {
+        ...options,
+    });
+
+export const getEnvironmentErrorsApiRoutes = (environmentId: number, options: IFetchOptions = {}) =>
+    fetcher<IError[]>(`${api}/environments/${environmentId}/errors`, {
         ...options,
     });
 
@@ -80,8 +86,8 @@ export const getMetricsHistoryApiRoute = (environmentId: number, periodDate: str
         ...options,
     });
 
-// Errors
-export const getErrorsApiRoutes = (environmentId: number, options: IFetchOptions = {}) =>
-    fetcher<IError[]>(`${api}/errors?environmentId=${environmentId}`, {
+// Pipelines
+export const getAllTestsPipelinesApiRoute = (environmentId: number, options: IFetchOptions = {}) =>
+    fetcher<IPipeline[]>(`${api}/pipelines/all-tests?environmentId=${environmentId}`, {
         ...options,
     });
