@@ -17,6 +17,7 @@ import { EConfigurationStatus } from "../../../constants.ts";
 import { IConfigurationTest } from "../../../interfaces/domain/IConfigurationTest.tsx";
 import { useGetSuitesAndTests } from "../../../services/useGetSuitesAndTests.ts";
 import { IConfigurationSuite } from "../../../interfaces/domain/IConfigurationSuite.tsx";
+import TruncatedTextWithTooltip from "../../Common/TruncatedTextWithTooltip/TruncatedTextWithTooltip.tsx";
 
 export const SuiteSearch = () => {
     const { getSuitesAndTestsState, suitesAndTestsData, formValues, setFormValues } = useGetSuitesAndTests();
@@ -75,7 +76,8 @@ export const SuiteSearch = () => {
                                 !test.tags || test.tags.length === 0 ? "ml-5" : ""
                             }`}
                         >
-                            <div className="w-full truncate">{test.title}</div>
+                            {/*<div className="w-full truncate">{test.title}</div>*/}
+                            <TruncatedTextWithTooltip text={test.title} className="w-full truncate" />
                         </div>
 
                         <div className="ml-0.5 flex w-2/12 flex-none items-start">
@@ -161,8 +163,14 @@ export const SuiteSearch = () => {
                         style={{ cursor: "pointer" }}
                     >
                         <div className={"mr-4 flex w-8/12 flex-none flex-col items-start"}>
-                            <div className="m-1 w-full truncate text-sm font-medium text-cyan-800">{suite.title}</div>
-                            <div className="mb-1 w-full truncate pl-1 pr-3 text-xs text-amber-800">{suite.file}</div>
+                            <TruncatedTextWithTooltip
+                                text={suite.title}
+                                className="m-1 w-full text-sm font-medium text-cyan-800"
+                            />
+                            <TruncatedTextWithTooltip
+                                text={suite.file}
+                                className="mb-1 w-full truncate pl-1 pr-3 text-xs text-amber-800"
+                            />
                         </div>
                         <div className="flex w-2/12 flex-none items-start">
                             <Tooltip

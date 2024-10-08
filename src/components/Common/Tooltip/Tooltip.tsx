@@ -7,9 +7,20 @@ interface TooltipProps {
     disabled?: boolean;
     size?: string;
     z?: number;
+    isTextTruncated?: boolean;
+    className?: string;
 }
 
-export const Tooltip: FC<TooltipProps> = ({ content, children, position = "top", disabled, size, z }) => {
+export const Tooltip: FC<TooltipProps> = ({
+    content,
+    children,
+    position = "top",
+    disabled,
+    size,
+    z,
+    isTextTruncated,
+    className,
+}) => {
     const [isVisible, setIsVisible] = useState(false);
 
     let positionClasses = "";
@@ -28,9 +39,15 @@ export const Tooltip: FC<TooltipProps> = ({ content, children, position = "top",
             break;
     }
 
+    const shouldShowTooltip = !disabled && (isTextTruncated === undefined || isTextTruncated);
+
     return (
-        <div className="relative" onMouseEnter={() => setIsVisible(true)} onMouseLeave={() => setIsVisible(false)}>
-            {isVisible && !disabled && (
+        <span
+            className={`relative ${className || ""}`}
+            onMouseEnter={() => setIsVisible(true)}
+            onMouseLeave={() => setIsVisible(false)}
+        >
+            {isVisible && shouldShowTooltip && (
                 <div
                     className={`absolute ${size ?? "w-64"} ${positionClasses} z-${
                         z ? z : "10"
@@ -40,6 +57,6 @@ export const Tooltip: FC<TooltipProps> = ({ content, children, position = "top",
                 </div>
             )}
             {children}
-        </div>
+        </span>
     );
 };
