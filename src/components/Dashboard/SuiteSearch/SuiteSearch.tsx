@@ -82,7 +82,7 @@ export const SuiteSearch = () => {
                                 </div>
                             )}
                         </div>
-                        <div className="flex w-2/12 flex-none items-start">
+                        <div className="flex w-2/12 flex-none items-start  justify-between">
                             <RunActionButton
                                 configurationTestId={test.id}
                                 disabled={!isConnected || test.status === EConfigurationStatus.IN_PROGRESS}
@@ -90,11 +90,13 @@ export const SuiteSearch = () => {
                                 variables={test.variables}
                                 isTestLoading={test.status === EConfigurationStatus.IN_PROGRESS}
                             />
-                            {selectedTest?.id === test.id ? (
-                                <ChevronUp className="mt-1 h-5 w-5 text-gray-500" />
-                            ) : (
-                                <ChevronDown className="mt-1 h-5 w-5 text-gray-500" />
-                            )}
+                            <div className="m-1 mr-6">
+                                {selectedTest?.id === test.id ? (
+                                    <ChevronUp className="h-5 w-5 text-gray-500" />
+                                ) : (
+                                    <ChevronDown className="h-5 w-5 text-gray-500" />
+                                )}
+                            </div>
                         </div>
                     </div>
                     {selectedTest?.id === test.id && <ResultTestViewer configurationTestId={test.id} />}
@@ -146,7 +148,7 @@ export const SuiteSearch = () => {
                             )}
                         </div>
 
-                        <div className="flex w-2/12 flex-none items-start">
+                        <div className="flex w-2/12 flex-none items-start justify-between">
                             <RunActionButton
                                 configurationSuiteId={suite.id}
                                 disabled={!isConnected || suite.status === EConfigurationStatus.IN_PROGRESS}
@@ -154,11 +156,13 @@ export const SuiteSearch = () => {
                                 variables={suite.variables}
                                 isTestLoading={suite.status === EConfigurationStatus.IN_PROGRESS}
                             />
-                            {selectedSuite?.id === suite.id ? (
-                                <ChevronUp className="mt-1 h-5 w-5 text-gray-500" />
-                            ) : (
-                                <ChevronDown className="mt-1 h-5 w-5 text-gray-500" />
-                            )}
+                            <div className="mr-6">
+                                {selectedSuite?.id === suite.id ? (
+                                    <ChevronUp className="mt-1 h-5 w-5 text-gray-500" />
+                                ) : (
+                                    <ChevronDown className="mt-1 h-5 w-5 text-gray-500" />
+                                )}
+                            </div>
                         </div>
                     </div>
                     {selectedSuite?.id === suite.id && renderTests(suite.tests)}
