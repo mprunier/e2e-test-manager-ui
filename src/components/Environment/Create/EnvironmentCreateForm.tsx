@@ -72,6 +72,28 @@ export const EnvironmentCreateForm = (props: IParams) => {
                 {errors.token && <p className="mt-1 text-xs text-red-600">{errors.token.message}</p>}
             </div>
 
+            <div className="flex flex-col space-y-2">
+                <label htmlFor="maxParallelTestNumber" className="text-sm font-medium text-gray-700">
+                    Max Parallel Test Number
+                </label>
+                <input
+                    id="maxParallelTestNumber"
+                    {...register("maxParallelTestNumber", {
+                        required: "Max Parallel Test Number is required",
+                    })}
+                    type="number"
+                    min="1"
+                    max="8"
+                    step="1"
+                    className={`w-full rounded-md border p-2 ${
+                        errors.maxParallelTestNumber ? "border-red-500" : "border-gray-300"
+                    }`}
+                />
+                {errors.maxParallelTestNumber && (
+                    <p className="mt-1 text-xs text-red-600">{errors.maxParallelTestNumber.message}</p>
+                )}
+            </div>
+
             <div className="text-center">
                 <button
                     type="submit"

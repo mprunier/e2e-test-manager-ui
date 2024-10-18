@@ -10,5 +10,6 @@ export interface ICreateUpdateEnvironmentPayload {
     projectId: string;
     token: string;
     branch: string;
+    maxParallelTestNumber: number;
     variables: ICreateUpdateEnvironmentVariablePayload[];
 }

@@ -24,6 +24,7 @@ export interface IEnvironment {
     schedulerStatus: EConfigurationStatus;
     isRunningAllTests: boolean;
     lastAllTestsError?: string;
+    maxParallelTestNumber: number;
 }
 
 export function isIEnvironmentStored(object: unknown): object is IEnvironment {
