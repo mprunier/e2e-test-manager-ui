@@ -63,3 +63,11 @@ export const putUpdateSchedulerApiRoute = (
         ...options,
         isSecured: true,
     });
+
+// Pipelines
+export const deleteCancelPipelineApiRoute = (pipelineId: string, options: IFetchOptions = {}) =>
+    fetcher<void>(`${api}/auth/pipelines/${pipelineId}`, {
+        method: "DELETE",
+        ...options,
+        isSecured: true,
+    });

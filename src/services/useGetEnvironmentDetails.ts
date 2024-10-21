@@ -51,12 +51,13 @@ export const useGetEnvironmentDetails = () => {
         await mutate((currentData) => {
             if (!currentData) return;
             const updatedData = { ...currentData };
-            updatedData.isRunningAllTests = true;
+            updatedData.isRunningAllTests = true; // TODO idem ici
             return updatedData;
         }, false);
     }, [mutate]);
     useWebSocketEvent(EEventType.ALL_TESTS_RUN_IN_PROGRESS_EVENT, handleAllTestsRunInProgressEvent);
 
+    // TODO: dépalcer ce hlander dans un autre qui gère la liste de spipelines de tous les tests en cours
     const handleAllTestsRunCompletedEvent = useCallback(
         (data: IEvent) => {
             console.log("All Tests Run Completed Event - Update Environment");

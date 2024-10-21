@@ -19,9 +19,12 @@ import { useGetSuitesAndTests } from "../../../services/useGetSuitesAndTests.ts"
 import { IConfigurationSuite } from "../../../interfaces/domain/IConfigurationSuite.tsx";
 import TruncatedTextWithTooltip from "../../Common/TruncatedTextWithTooltip/TruncatedTextWithTooltip.tsx";
 import { ChevronDown, ChevronUp, List } from "lucide-react";
+import { PipelineIndicator } from "./PipelineIndicator.tsx";
+import { useCancelPipeline } from "../../../services/useCancelPipeline.tsx";
 
 export const SuiteSearch = () => {
     const { getSuitesAndTestsState, suitesAndTestsData, formValues, setFormValues } = useGetSuitesAndTests();
+    const { cancel, cancelIsLoading } = useCancelPipeline();
     const [selectedTest, setSelectedTest] = useState<IConfigurationTest | null>(null);
     const [selectedSuite, setSelectedSuite] = useState<IConfigurationSuite | null>(null);
 
@@ -70,12 +73,23 @@ export const SuiteSearch = () => {
                                 <span
                                     className={classNames(
                                         classNameStatus(test.status),
-                                        "inline-block w-[140px] rounded-full px-3 py-1 text-center text-sm",
+                                        `inline-block w-[140px] rounded-full px-3 py-1 text-center text-sm ${
+                                            test.pipelinesInProgress && test.pipelinesInProgress.length > 0
+                                                ? "animate-pulse border-2 border-blue-300"
+                                                : ""
+                                        }`,
                                     )}
                                 >
                                     {getStatusViewer(test.status)}
                                 </span>
                             </Tooltip>
+                            <div className="pl-2 pt-1">
+                                <PipelineIndicator
+                                    pipelinesInProgress={test.pipelinesInProgress}
+                                    onCancelPipeline={cancel}
+                                    cancelIsLoading={cancelIsLoading}
+                                />
+                            </div>
                             {test.status === EConfigurationStatus.NEW && (
                                 <div className={"pl-2"}>
                                     <NewSVG />
@@ -85,7 +99,11 @@ export const SuiteSearch = () => {
                         <div className="flex w-2/12 flex-none items-start  justify-between">
                             <RunActionButton
                                 configurationTestId={test.id}
-                                disabled={!isConnected || test.status === EConfigurationStatus.IN_PROGRESS}
+                                disabled={
+                                    !isConnected ||
+                                    (test.pipelinesInProgress &&
+                                        test.pipelinesInProgress.filter((pipeline) => !pipeline.isAllTests).length > 0)
+                                }
                                 isConnected={isConnected}
                                 variables={test.variables}
                                 isTestLoading={test.status === EConfigurationStatus.IN_PROGRESS}
@@ -135,12 +153,23 @@ export const SuiteSearch = () => {
                                 <span
                                     className={classNames(
                                         classNameStatus(suite.status),
-                                        "inline-block w-[140px] rounded-full px-3 py-1 text-center text-sm",
+                                        `inline-block w-[140px] rounded-full px-3 py-1 text-center text-sm ${
+                                            suite.pipelinesInProgress && suite.pipelinesInProgress.length > 0
+                                                ? "animate-pulse border-2 border-blue-300"
+                                                : ""
+                                        }`,
                                     )}
                                 >
                                     {getStatusViewer(suite.status)}
                                 </span>
                             </Tooltip>
+                            <div className="pl-2 pt-1">
+                                <PipelineIndicator
+                                    pipelinesInProgress={suite.pipelinesInProgress}
+                                    onCancelPipeline={cancel}
+                                    cancelIsLoading={cancelIsLoading}
+                                />
+                            </div>
                             {suite.hasNewTest && (
                                 <div className={"pl-2"}>
                                     <NewSVG />
@@ -151,7 +180,11 @@ export const SuiteSearch = () => {
                         <div className="flex w-2/12 flex-none items-start justify-between">
                             <RunActionButton
                                 configurationSuiteId={suite.id}
-                                disabled={!isConnected || suite.status === EConfigurationStatus.IN_PROGRESS}
+                                disabled={
+                                    !isConnected ||
+                                    (suite.pipelinesInProgress &&
+                                        suite.pipelinesInProgress.filter((pipeline) => !pipeline.isAllTests).length > 0)
+                                }
                                 isConnected={isConnected}
                                 variables={suite.variables}
                                 isTestLoading={suite.status === EConfigurationStatus.IN_PROGRESS}

@@ -1,5 +1,6 @@
 import { EConfigurationStatus } from "../../constants.ts";
 import { IConfigurationTest } from "./IConfigurationTest.tsx";
+import { IPipelineDetails } from "./IPipelineDetails.tsx";
 
 export interface IConfigurationSuite {
     id: number;
@@ -10,6 +11,7 @@ export interface IConfigurationSuite {
     variables?: string[];
     lastPlayedAt?: Date;
     hasNewTest: boolean;
+    pipelinesInProgress: IPipelineDetails[];
 }
 
 export enum EConfigurationSuiteSortField {

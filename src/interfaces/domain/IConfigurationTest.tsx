@@ -1,4 +1,5 @@
 import { EConfigurationStatus } from "../../constants.ts";
+import { IPipelineDetails } from "./IPipelineDetails.tsx";
 
 export interface IConfigurationTest {
     id: number;
@@ -10,4 +11,5 @@ export interface IConfigurationTest {
     variables?: string[];
     tags?: string[];
     lastPlayedAt?: Date;
+    pipelinesInProgress: IPipelineDetails[];
 }

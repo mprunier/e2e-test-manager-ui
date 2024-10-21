@@ -3,9 +3,8 @@ import { objectToQuery } from "../utils/urlUtils.ts";
 import { useEnvironmentContext } from "../hooks/useEnvironmentContext.ts";
 import useSWR, { SWRConfiguration } from "swr";
 import { getSuiteSearchApiRoute } from "../endpoints/publicEndpoints.ts";
-import { EEventType, IEvent, ITestRunInProgressEvent } from "../interfaces/websockets/IWebSocketEvents.ts";
+import { EEventType, IEvent } from "../interfaces/websockets/IWebSocketEvents.ts";
 import { useWebSocketEvent } from "../hooks/useWebSocketEvent.tsx";
-import { EConfigurationStatus } from "../constants.ts";
 import { ISearchConfigurationSuite } from "../interfaces/domain/ISearch.tsx";
 import {
     EConfigurationSuiteSortField,
@@ -117,36 +116,37 @@ export const useGetSuitesAndTests = () => {
     const handleTestRunInProgressEvent = useCallback(
         async (data: IEvent) => {
             console.log("Test Run In Progress Event - Update Suites and Tests");
-            const event = data as ITestRunInProgressEvent;
-            await mutate((currentData) => {
-                if (!currentData) return;
-                // Create a deep copy of currentData to ensure immutability
-                const updatedData: ISearchConfigurationSuite = JSON.parse(JSON.stringify(currentData));
-                if (event.testId) {
-                    const suite = updatedData.content.find((s) => s.tests.some((t) => t.id === event.testId));
-                    if (suite) {
-                        suite.status = EConfigurationStatus.IN_PROGRESS;
-                        const test = suite.tests.find((t) => t.id === event.testId);
-                        if (test) {
-                            test.status = EConfigurationStatus.IN_PROGRESS;
-                        }
-                        const hasNewTest = suite.tests.find((t) => t.status === EConfigurationStatus.NEW);
-                        if (!hasNewTest) {
-                            suite.hasNewTest = false;
-                        }
-                    }
-                } else if (event.suiteId) {
-                    const suite = updatedData.content.find((s) => s.id === event.suiteId);
-                    if (suite) {
-                        suite.status = EConfigurationStatus.IN_PROGRESS;
-                        suite.hasNewTest = false;
-                        suite.tests.forEach((t) => {
-                            t.status = EConfigurationStatus.IN_PROGRESS;
-                        });
-                    }
-                }
-                return updatedData;
-            }, false);
+            // const event = data as ITestRunInProgressEvent;
+            await mutate();
+            // await mutate((currentData) => {
+            //     if (!currentData) return;
+            //     // Create a deep copy of currentData to ensure immutability
+            //     const updatedData: ISearchConfigurationSuite = JSON.parse(JSON.stringify(currentData));
+            //     if (event.testId) {
+            //         const suite = updatedData.content.find((s) => s.tests.some((t) => t.id === event.testId));
+            //         if (suite) {
+            //             suite.status = EConfigurationStatus.IN_PROGRESS;
+            //             const test = suite.tests.find((t) => t.id === event.testId);
+            //             if (test) {
+            //                 test.status = EConfigurationStatus.IN_PROGRESS;
+            //             }
+            //             const hasNewTest = suite.tests.find((t) => t.status === EConfigurationStatus.NEW);
+            //             if (!hasNewTest) {
+            //                 suite.hasNewTest = false;
+            //             }
+            //         }
+            //     } else if (event.suiteId) {
+            //         const suite = updatedData.content.find((s) => s.id === event.suiteId);
+            //         if (suite) {
+            //             suite.status = EConfigurationStatus.IN_PROGRESS;
+            //             suite.hasNewTest = false;
+            //             suite.tests.forEach((t) => {
+            //                 t.status = EConfigurationStatus.IN_PROGRESS;
+            //             });
+            //         }
+            //     }
+            //     return updatedData;
+            // }, false);
         },
         [mutate],
     );
