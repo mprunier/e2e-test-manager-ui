@@ -1,50 +1,24 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { objectToQuery } from "../utils/urlUtils.ts";
 import { useEnvironmentContext } from "../hooks/useEnvironmentContext.ts";
 import useSWR, { SWRConfiguration } from "swr";
 import { getSuiteSearchApiRoute } from "../endpoints/publicEndpoints.ts";
-import {
-    EEventType,
-    IEvent,
-    IRunCompletedEvent,
-    IRunInProgressEvent,
-} from "../interfaces/websockets/IWebSocketEvents.ts";
+import { EEventType } from "../interfaces/websockets/IWebSocketEvents.ts";
 import { useWebSocketEvent } from "../hooks/useWebSocketEvent.tsx";
 import { ISearchConfigurationSuite } from "../interfaces/domain/ISearch.tsx";
+import { useStorage } from "../hooks/useStorage.ts";
+import { SetURLSearchParams, useSearchParams } from "react-router-dom";
+import {
+    FormValues,
+    formValuesToRecord,
+    STORAGE_KEY_PAGINATION,
+    StoredPaginationSettings,
+} from "../interfaces/technical/SearchSuite.ts";
+import { useSearchConfigurationSuiteWebSocketHandlers } from "../handlers/useSearchConfigurationSuiteWebSocketHandlers.ts";
 import {
     EConfigurationSuiteSortField,
     EConfigurationSuiteSortOrder,
 } from "../interfaces/domain/IConfigurationSuite.tsx";
-import { useStorage } from "../hooks/useStorage.ts";
-import { IPipelineDetails } from "../interfaces/domain/IPipelineDetails.tsx";
-
-const STORAGE_KEY_PAGINATION = "paginationSettings";
-
-interface StoredPaginationSettings {
-    page: number;
-    size: number;
-    sortField: EConfigurationSuiteSortField;
-    sortOrder: EConfigurationSuiteSortOrder;
-}
-
-interface FormValues extends StoredPaginationSettings {
-    file: string;
-    configurationSuiteId: string;
-    configurationTestId: string;
-    configurationTestTag: string;
-    status: string;
-    allNotSuccess: boolean;
-}
-
-function formValuesToRecord(formValues: FormValues): Record<string, unknown> {
-    return Object.keys(formValues).reduce(
-        (acc, key) => {
-            acc[key] = formValues[key as keyof FormValues];
-            return acc;
-        },
-        {} as Record<string, unknown>,
-    );
-}
 
 export const useSwrGetSuitesAndTests = (query: string, options: SWRConfiguration<ISearchConfigurationSuite> = {}) =>
     useSWR<ISearchConfigurationSuite>(["useSwrGetSuitesAndTests", query], {
@@ -53,142 +27,136 @@ export const useSwrGetSuitesAndTests = (query: string, options: SWRConfiguration
         revalidateOnFocus: false,
     });
 
-export const useGetSuitesAndTests = () => {
-    const { environment } = useEnvironmentContext();
+export const useInitialFormValues = (
+    searchParams: URLSearchParams,
+    storedPaginationSettings?: StoredPaginationSettings,
+): FormValues => {
+    return {
+        file: searchParams.get("file") || "",
+        configurationSuiteId: searchParams.get("suiteId") || "",
+        configurationTestId: searchParams.get("testId") || "",
+        configurationTestTag: searchParams.get("tag") || "",
+        status: searchParams.get("status") || "",
+        allNotSuccess: searchParams.get("unsuccessful") === "true",
+        page: parseInt(searchParams.get("page") || "0"),
+        size: parseInt(searchParams.get("size") || storedPaginationSettings?.size?.toString() || "10"),
+        sortField:
+            (searchParams.get("sortField") as EConfigurationSuiteSortField) ||
+            storedPaginationSettings?.sortField ||
+            EConfigurationSuiteSortField.FILE,
+        sortOrder:
+            (searchParams.get("sortOrder") as EConfigurationSuiteSortOrder) ||
+            storedPaginationSettings?.sortOrder ||
+            EConfigurationSuiteSortOrder.DESC,
+    };
+};
 
-    const { data: storedPaginationSettings, saveInStorage } =
-        useStorage<StoredPaginationSettings>(STORAGE_KEY_PAGINATION);
+export const useUrlParamsHandler = (
+    formValues: FormValues,
+    searchParams: URLSearchParams,
+    setSearchParams: SetURLSearchParams,
+) => {
+    return useCallback(
+        (newValues: Partial<FormValues>) => {
+            const updatedValues = { ...formValues, ...newValues };
+            const newSearchParams = new URLSearchParams(searchParams);
 
-    const [formValues, setFormValues] = useState<FormValues>(() => ({
-        file: "",
-        configurationSuiteId: "",
-        configurationTestId: "",
-        configurationTestTag: "",
-        status: "",
-        allNotSuccess: false,
-        page: storedPaginationSettings?.page ?? 0,
-        size: storedPaginationSettings?.size ?? 10,
-        sortField: storedPaginationSettings?.sortField ?? EConfigurationSuiteSortField.FILE,
-        sortOrder: storedPaginationSettings?.sortOrder ?? EConfigurationSuiteSortOrder.DESC,
-    }));
+            const paramMapping = {
+                configurationSuiteId: "suiteId",
+                configurationTestId: "testId",
+                configurationTestTag: "tag",
+                allNotSuccess: "unsuccessful",
+            };
 
-    const prevPaginationRef = useRef<StoredPaginationSettings>({
-        page: formValues.page,
-        size: formValues.size,
-        sortField: formValues.sortField,
-        sortOrder: formValues.sortOrder,
-    });
+            Object.entries(updatedValues).forEach(([key, value]) => {
+                const urlKey = paramMapping[key as keyof typeof paramMapping] || key;
+
+                if (value && value.toString() !== "0" && value.toString() !== "false") {
+                    newSearchParams.set(urlKey, value.toString());
+                } else {
+                    newSearchParams.delete(urlKey);
+                }
+            });
+
+            setSearchParams(newSearchParams, { replace: true });
+        },
+        [formValues, searchParams, setSearchParams],
+    );
+};
+
+const extractPaginationSettings = (formValues: FormValues): StoredPaginationSettings => ({
+    page: formValues.page,
+    size: formValues.size,
+    sortField: formValues.sortField,
+    sortOrder: formValues.sortOrder,
+});
+
+export const useSavePaginationEffect = (
+    formValues: FormValues,
+    saveInStorage: (settings: StoredPaginationSettings) => void,
+) => {
+    const prevPaginationRef = useRef<StoredPaginationSettings>(extractPaginationSettings(formValues));
 
     useEffect(() => {
-        const currentPagination = {
-            page: formValues.page,
-            size: formValues.size,
-            sortField: formValues.sortField,
-            sortOrder: formValues.sortOrder,
-        };
+        const currentPagination = extractPaginationSettings(formValues);
 
         if (JSON.stringify(currentPagination) !== JSON.stringify(prevPaginationRef.current)) {
             saveInStorage(currentPagination);
             prevPaginationRef.current = currentPagination;
         }
     }, [formValues.page, formValues.size, formValues.sortField, formValues.sortOrder, saveInStorage]);
+};
 
-    const setFormValuesAndSave = useCallback((newValues: Partial<FormValues>) => {
-        setFormValues((prevValues) => ({
-            ...prevValues,
-            ...newValues,
-        }));
-    }, []);
+export const useGetSuitesAndTests = () => {
+    const { environment } = useEnvironmentContext();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const { data: storedPaginationSettings, saveInStorage } =
+        useStorage<StoredPaginationSettings>(STORAGE_KEY_PAGINATION);
 
-    const query = `${objectToQuery(formValuesToRecord(formValues))}`;
+    useEffect(() => {
+        if (storedPaginationSettings && searchParams.toString() === "") {
+            const newSearchParams = new URLSearchParams();
+
+            if (storedPaginationSettings.size !== 10) {
+                newSearchParams.set("size", storedPaginationSettings.size.toString());
+            }
+            if (storedPaginationSettings.sortField !== EConfigurationSuiteSortField.FILE) {
+                newSearchParams.set("sortField", storedPaginationSettings.sortField);
+            }
+            if (storedPaginationSettings.sortOrder !== EConfigurationSuiteSortOrder.DESC) {
+                newSearchParams.set("sortOrder", storedPaginationSettings.sortOrder);
+            }
+            if (storedPaginationSettings.page > 0) {
+                newSearchParams.set("page", storedPaginationSettings.page.toString());
+            }
+
+            if (newSearchParams.toString() !== "") {
+                setSearchParams(newSearchParams, { replace: true });
+            }
+        }
+    }, [storedPaginationSettings, searchParams, setSearchParams]);
+
+    const formValues = useInitialFormValues(searchParams, storedPaginationSettings);
+    const setFormValues = useUrlParamsHandler(formValues, searchParams, setSearchParams);
+    useSavePaginationEffect(formValues, saveInStorage);
+
+    const query = objectToQuery(formValuesToRecord(formValues));
     const queryWithEnv =
         query === "" ? `environmentId=${environment?.id}` : `environmentId=${environment?.id}&${query}`;
 
     const { data, error, mutate, isLoading } = useSwrGetSuitesAndTests(queryWithEnv);
 
-    const handleCompleteRefreshEvent = useCallback(
-        async (data: IEvent) => {
-            console.log("Run Completed Event - Update Suites and Tests");
-            const event = data as IRunCompletedEvent;
-            if (event.isAllTests) {
-                await mutate();
-            } else {
-                if (event.configurationSuite) {
-                    await mutate((currentData) => {
-                        if (!currentData) return;
-                        // Create a deep copy of currentData to ensure immutability
-                        const updatedData: ISearchConfigurationSuite = JSON.parse(JSON.stringify(currentData));
-
-                        if (event.configurationSuite) {
-                            const index = updatedData.content.findIndex(
-                                (suite) => suite.id === event.configurationSuite?.id,
-                            );
-                            if (index !== -1) {
-                                updatedData.content[index] = event.configurationSuite;
-                            }
-                        }
-
-                        return updatedData;
-                    }, false);
-                }
-            }
-        },
-        [mutate],
-    );
+    const { handleCompleteRefreshEvent, handleRunInProgressEvent, handleSyncEnvironmentCompletedEvent } =
+        useSearchConfigurationSuiteWebSocketHandlers(mutate);
     useWebSocketEvent(EEventType.RUN_COMPLETED_EVENT, handleCompleteRefreshEvent);
-
-    const handleSyncEnvironmentCompletedEvent = useCallback(async () => {
-        console.log("Sync Environment Completed Event - Update Suites and Tests");
-        await mutate();
-    }, [mutate]);
-    useWebSocketEvent(EEventType.SYNC_ENVIRONMENT_COMPLETED_EVENT, handleSyncEnvironmentCompletedEvent);
-
-    const handleRunInProgressEvent = useCallback(
-        async (data: IEvent) => {
-            console.log("Run In Progress Event - Update Suites and Tests");
-            const event = data as IRunInProgressEvent;
-
-            await mutate((currentData) => {
-                if (!currentData) return;
-                // Create a deep copy of currentData to ensure immutability
-                const updatedData: ISearchConfigurationSuite = JSON.parse(JSON.stringify(currentData));
-
-                if (event.isAllTests) {
-                    const newPipeline: IPipelineDetails = {
-                        isAllTests: true,
-                    };
-
-                    updatedData.content = updatedData.content.map((suite) => ({
-                        ...suite,
-                        pipelinesInProgress: [...suite.pipelinesInProgress, newPipeline],
-                        tests: suite.tests.map((test) => ({
-                            ...test,
-                            pipelinesInProgress: [...test.pipelinesInProgress, newPipeline],
-                        })),
-                    }));
-                } else {
-                    if (event.configurationSuite) {
-                        const index = updatedData.content.findIndex(
-                            (suite) => suite.id === event.configurationSuite?.id,
-                        );
-                        if (index !== -1) {
-                            updatedData.content[index] = event.configurationSuite;
-                        }
-                    }
-                }
-
-                return updatedData;
-            }, false);
-        },
-        [mutate],
-    );
     useWebSocketEvent(EEventType.RUN_IN_PROGRESS_EVENT, handleRunInProgressEvent);
+    useWebSocketEvent(EEventType.SYNC_ENVIRONMENT_COMPLETED_EVENT, handleSyncEnvironmentCompletedEvent);
 
     return {
         getSuitesAndTestsState: { isLoading, error },
         suitesAndTestsData: data,
         mutateSuitesAndTests: mutate,
         formValues,
-        setFormValues: setFormValuesAndSave,
+        setFormValues,
     };
 };
