@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { IEnvironment } from "../../../interfaces/domain/IEnvironment.ts";
 import { useEnvironmentContext } from "../../../hooks/useEnvironmentContext";
 import { useGetEnvironments } from "../../../services/useGetAllEnvironments.ts";
-import { useNavigate } from "react-router-dom";
+import { matchPath, useNavigate } from "react-router-dom";
 
 interface IParams {
     all?: boolean;
@@ -17,9 +17,15 @@ export const useEnvironments = ({ all }: IParams) => {
     const handleChangeEnvironment = useCallback(
         (environmentSelected: IEnvironment) => {
             setEnvironment(environmentSelected);
-            navigate(`/env/${environmentSelected.id}`);
+
+            const match = matchPath({ path: "/env/:envId/*" }, location.pathname);
+            const subPath = match?.params["*"] || "";
+
+            const newPath = `/env/${environmentSelected.id}${subPath ? `/${subPath}` : ""}`;
+
+            navigate(newPath);
         },
-        [setEnvironment, navigate],
+        [setEnvironment, navigate, location.pathname],
     );
 
     return {
