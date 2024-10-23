@@ -1,6 +1,6 @@
 export interface IPipelineDetails {
-    id: string;
-    createdBy: string;
+    id?: string;
+    createdBy?: string;
     createdAt?: Date;
-    isAllTests: boolean;
+    isAllTests?: boolean;
 }

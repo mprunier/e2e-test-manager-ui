@@ -1,13 +1,7 @@
 import { FC, Fragment } from "react";
 import { RefreshCcw, X } from "lucide-react";
 import { Popover, Transition } from "@headlessui/react";
-
-interface IPipelineDetails {
-    id: string;
-    createdBy: string;
-    createdAt?: Date;
-    isAllTests: boolean;
-}
+import { IPipelineDetails } from "../../../interfaces/domain/IPipelineDetails.tsx";
 
 interface TestPipelineIndicatorProps {
     pipelinesInProgress: IPipelineDetails[];
@@ -58,18 +52,32 @@ export const PipelineIndicator: FC<TestPipelineIndicatorProps> = ({
                                                 key={pipeline.id}
                                                 className="flex items-center justify-between rounded-3xl border-b bg-gray-100 px-4 py-2 text-sm last:border-b-0"
                                             >
-                                                <span className="text-gray-700">
-                                                    Pipeline run by{" "}
-                                                    <span className="font-semibold">{pipeline.createdBy}</span>
-                                                </span>
-                                                <button
-                                                    disabled={cancelIsLoading}
-                                                    onClick={() => onCancelPipeline(pipeline.id)}
-                                                    className="ml-2 rounded-full p-1 text-red-500 transition-colors duration-200 hover:bg-red-100"
-                                                    title="Cancel pipeline"
-                                                >
-                                                    <X size={16} />
-                                                </button>
+                                                {pipeline.id && (
+                                                    <>
+                                                        <span className="text-gray-700">
+                                                            Pipeline run by{" "}
+                                                            <span className="font-semibold">{pipeline.createdBy}</span>.
+                                                        </span>
+
+                                                        <button
+                                                            disabled={cancelIsLoading}
+                                                            onClick={() => {
+                                                                if (pipeline.id) {
+                                                                    onCancelPipeline(pipeline.id);
+                                                                }
+                                                            }}
+                                                            className="ml-2 rounded-full p-1 text-red-500 transition-colors duration-200 hover:bg-red-100"
+                                                            title="Cancel pipeline"
+                                                        >
+                                                            <X size={16} />
+                                                        </button>
+                                                    </>
+                                                )}
+                                                {pipeline.isAllTests && (
+                                                    <span className="text-gray-700">
+                                                        <span className="font-semibold">All tests</span> are running.
+                                                    </span>
+                                                )}
                                             </li>
                                         ))}
                                     </ul>

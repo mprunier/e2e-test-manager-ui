@@ -21,6 +21,11 @@ export const getEnvironmentsApiRoute = (all?: boolean, options: IFetchOptions = 
         ...options,
     });
 
+export const getEnvironmentErrorsApiRoutes = (environmentId: number, options: IFetchOptions = {}) =>
+    fetcher<IError[]>(`${api}/environments/${environmentId}/errors`, {
+        ...options,
+    });
+
 // Configs
 export const getSuiteSearchApiRoute = (query: string, options: IFetchOptions = {}) =>
     fetcher<ISearchConfigurationSuite>(`${api}/configurations/search/suites?${query}`, {
@@ -77,11 +82,5 @@ export const getFinalMetricsApiRoute = (environmentId: number, options: IFetchOp
 
 export const getMetricsHistoryApiRoute = (environmentId: number, periodDate: string, options: IFetchOptions = {}) =>
     fetcher<IMetrics[]>(`${api}/metrics/history?environmentId=${environmentId}&=since=${periodDate}`, {
-        ...options,
-    });
-
-// Errors
-export const getErrorsApiRoutes = (environmentId: number, options: IFetchOptions = {}) =>
-    fetcher<IError[]>(`${api}/errors?environmentId=${environmentId}`, {
         ...options,
     });

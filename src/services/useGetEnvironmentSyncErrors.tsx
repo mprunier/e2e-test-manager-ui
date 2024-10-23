@@ -1,22 +1,22 @@
 import { useEnvironmentContext } from "../hooks/useEnvironmentContext.ts";
 import useSWR, { SWRConfiguration } from "swr";
-import { getErrorsApiRoutes } from "../endpoints/publicEndpoints.ts";
+import { getEnvironmentErrorsApiRoutes } from "../endpoints/publicEndpoints.ts";
 import { useCallback } from "react";
 import { EEventType, IEvent, ISyncEnvironmentCompletedEvent } from "../interfaces/websockets/IWebSocketEvents.ts";
 import { useWebSocketEvent } from "../hooks/useWebSocketEvent.tsx";
 import { IError } from "../interfaces/domain/IError.tsx";
 
-const useSwrGetSyncErrors = (environmentId?: number, options: SWRConfiguration<IError[]> = {}) =>
-    useSWR<IError[]>(environmentId ? ["useSwrGetSyncErrors", environmentId] : null, {
+const useSwrGetEnvironmentSyncErrors = (environmentId?: number, options: SWRConfiguration<IError[]> = {}) =>
+    useSWR<IError[]>(environmentId ? ["useSwrGetEnvironmentSyncErrors", environmentId] : null, {
         ...options,
         revalidateOnFocus: false,
-        fetcher: () => getErrorsApiRoutes(environmentId as number),
+        fetcher: () => getEnvironmentErrorsApiRoutes(environmentId as number),
     });
 
-export const useGetSyncErrors = () => {
+export const useGetEnvironmentSyncErrors = () => {
     const { environment } = useEnvironmentContext();
 
-    const { data, error, isLoading, mutate } = useSwrGetSyncErrors(environment?.id);
+    const { data, error, isLoading, mutate } = useSwrGetEnvironmentSyncErrors(environment?.id);
 
     const handleEvent = useCallback(
         async (data: IEvent) => {

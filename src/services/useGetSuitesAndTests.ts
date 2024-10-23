@@ -3,7 +3,12 @@ import { objectToQuery } from "../utils/urlUtils.ts";
 import { useEnvironmentContext } from "../hooks/useEnvironmentContext.ts";
 import useSWR, { SWRConfiguration } from "swr";
 import { getSuiteSearchApiRoute } from "../endpoints/publicEndpoints.ts";
-import { EEventType, IEvent } from "../interfaces/websockets/IWebSocketEvents.ts";
+import {
+    EEventType,
+    IEvent,
+    IRunCompletedEvent,
+    IRunInProgressEvent,
+} from "../interfaces/websockets/IWebSocketEvents.ts";
 import { useWebSocketEvent } from "../hooks/useWebSocketEvent.tsx";
 import { ISearchConfigurationSuite } from "../interfaces/domain/ISearch.tsx";
 import {
@@ -11,6 +16,7 @@ import {
     EConfigurationSuiteSortOrder,
 } from "../interfaces/domain/IConfigurationSuite.tsx";
 import { useStorage } from "../hooks/useStorage.ts";
+import { IPipelineDetails } from "../interfaces/domain/IPipelineDetails.tsx";
 
 const STORAGE_KEY_PAGINATION = "paginationSettings";
 
@@ -100,12 +106,36 @@ export const useGetSuitesAndTests = () => {
 
     const { data, error, mutate, isLoading } = useSwrGetSuitesAndTests(queryWithEnv);
 
-    const handleCompleteRefreshEvent = useCallback(async () => {
-        console.log("Test or All Tests Run Completed Event - Update Suites and Tests");
-        await mutate();
-    }, [mutate]);
-    useWebSocketEvent(EEventType.TEST_RUN_COMPLETED_EVENT, handleCompleteRefreshEvent);
-    useWebSocketEvent(EEventType.ALL_TESTS_RUN_COMPLETED_EVENT, handleCompleteRefreshEvent);
+    const handleCompleteRefreshEvent = useCallback(
+        async (data: IEvent) => {
+            console.log("Run Completed Event - Update Suites and Tests");
+            const event = data as IRunCompletedEvent;
+            if (event.isAllTests) {
+                await mutate();
+            } else {
+                if (event.configurationSuite) {
+                    await mutate((currentData) => {
+                        if (!currentData) return;
+                        // Create a deep copy of currentData to ensure immutability
+                        const updatedData: ISearchConfigurationSuite = JSON.parse(JSON.stringify(currentData));
+
+                        if (event.configurationSuite) {
+                            const index = updatedData.content.findIndex(
+                                (suite) => suite.id === event.configurationSuite?.id,
+                            );
+                            if (index !== -1) {
+                                updatedData.content[index] = event.configurationSuite;
+                            }
+                        }
+
+                        return updatedData;
+                    }, false);
+                }
+            }
+        },
+        [mutate],
+    );
+    useWebSocketEvent(EEventType.RUN_COMPLETED_EVENT, handleCompleteRefreshEvent);
 
     const handleSyncEnvironmentCompletedEvent = useCallback(async () => {
         console.log("Sync Environment Completed Event - Update Suites and Tests");
@@ -113,44 +143,46 @@ export const useGetSuitesAndTests = () => {
     }, [mutate]);
     useWebSocketEvent(EEventType.SYNC_ENVIRONMENT_COMPLETED_EVENT, handleSyncEnvironmentCompletedEvent);
 
-    const handleTestRunInProgressEvent = useCallback(
+    const handleRunInProgressEvent = useCallback(
         async (data: IEvent) => {
-            console.log("Test Run In Progress Event - Update Suites and Tests");
-            // const event = data as ITestRunInProgressEvent;
-            await mutate();
-            // await mutate((currentData) => {
-            //     if (!currentData) return;
-            //     // Create a deep copy of currentData to ensure immutability
-            //     const updatedData: ISearchConfigurationSuite = JSON.parse(JSON.stringify(currentData));
-            //     if (event.testId) {
-            //         const suite = updatedData.content.find((s) => s.tests.some((t) => t.id === event.testId));
-            //         if (suite) {
-            //             suite.status = EConfigurationStatus.IN_PROGRESS;
-            //             const test = suite.tests.find((t) => t.id === event.testId);
-            //             if (test) {
-            //                 test.status = EConfigurationStatus.IN_PROGRESS;
-            //             }
-            //             const hasNewTest = suite.tests.find((t) => t.status === EConfigurationStatus.NEW);
-            //             if (!hasNewTest) {
-            //                 suite.hasNewTest = false;
-            //             }
-            //         }
-            //     } else if (event.suiteId) {
-            //         const suite = updatedData.content.find((s) => s.id === event.suiteId);
-            //         if (suite) {
-            //             suite.status = EConfigurationStatus.IN_PROGRESS;
-            //             suite.hasNewTest = false;
-            //             suite.tests.forEach((t) => {
-            //                 t.status = EConfigurationStatus.IN_PROGRESS;
-            //             });
-            //         }
-            //     }
-            //     return updatedData;
-            // }, false);
+            console.log("Run In Progress Event - Update Suites and Tests");
+            const event = data as IRunInProgressEvent;
+
+            await mutate((currentData) => {
+                if (!currentData) return;
+                // Create a deep copy of currentData to ensure immutability
+                const updatedData: ISearchConfigurationSuite = JSON.parse(JSON.stringify(currentData));
+
+                if (event.isAllTests) {
+                    const newPipeline: IPipelineDetails = {
+                        isAllTests: true,
+                    };
+
+                    updatedData.content = updatedData.content.map((suite) => ({
+                        ...suite,
+                        pipelinesInProgress: [...suite.pipelinesInProgress, newPipeline],
+                        tests: suite.tests.map((test) => ({
+                            ...test,
+                            pipelinesInProgress: [...test.pipelinesInProgress, newPipeline],
+                        })),
+                    }));
+                } else {
+                    if (event.configurationSuite) {
+                        const index = updatedData.content.findIndex(
+                            (suite) => suite.id === event.configurationSuite?.id,
+                        );
+                        if (index !== -1) {
+                            updatedData.content[index] = event.configurationSuite;
+                        }
+                    }
+                }
+
+                return updatedData;
+            }, false);
         },
         [mutate],
     );
-    useWebSocketEvent(EEventType.TEST_RUN_IN_PROGRESS_EVENT, handleTestRunInProgressEvent);
+    useWebSocketEvent(EEventType.RUN_IN_PROGRESS_EVENT, handleRunInProgressEvent);
 
     return {
         getSuitesAndTestsState: { isLoading, error },

@@ -51,7 +51,7 @@ export const useGetEnvironmentDetails = () => {
         await mutate((currentData) => {
             if (!currentData) return;
             const updatedData = { ...currentData };
-            updatedData.isRunningAllTests = true; // TODO idem ici
+            updatedData.isRunningAllTests = true; // TODO idem ici : mutate au total
             return updatedData;
         }, false);
     }, [mutate]);

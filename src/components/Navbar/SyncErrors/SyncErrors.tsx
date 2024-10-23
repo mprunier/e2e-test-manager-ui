@@ -1,11 +1,11 @@
-import { useGetSyncErrors } from "../../../services/useGetSyncErrors.tsx";
+import { useGetEnvironmentSyncErrors } from "../../../services/useGetEnvironmentSyncErrors.tsx";
 import Dropdown from "../../Common/Dropdown/Dropdown.tsx";
 import { SyncErrorSVG } from "../../../assets/images/SyncErrorSVG.tsx";
 import { Tooltip } from "../../Common/Tooltip/Tooltip.tsx";
 import { formatDateTime } from "../../../utils/dateUtils.ts";
 
 export const SyncErrors = () => {
-    const { errorsData, getSyncErrorsState } = useGetSyncErrors();
+    const { errorsData, getSyncErrorsState } = useGetEnvironmentSyncErrors();
     const errorsCount = errorsData ? errorsData.length : -1;
 
     return (

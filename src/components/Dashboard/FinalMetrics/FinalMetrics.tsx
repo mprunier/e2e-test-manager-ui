@@ -136,10 +136,10 @@ export const FinalMetrics = () => {
                         {isLastAllTestsError && !isRunningAllTests && (
                             <div className="flex  items-center justify-between space-y-2">
                                 <div
-                                    className="relative mt-3 rounded-md border border-amber-200 bg-blue-50 px-4 py-1 text-amber-400"
+                                    className="relative mt-3 rounded-md border border-red-400 bg-red-50 px-4 py-1 text-red-800"
                                     role="alert"
                                 >
-                                    <strong className="font-light">{isLastAllTestsError}</strong>
+                                    <strong className="font-normal">{isLastAllTestsError}</strong>
                                 </div>
                             </div>
                         )}
