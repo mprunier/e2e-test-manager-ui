@@ -4,7 +4,7 @@ import { getEnvironmentErrorsApiRoutes } from "../endpoints/publicEndpoints.ts";
 import { EEventType } from "../interfaces/websockets/IWebSocketEvents.ts";
 import { useWebSocketEvent } from "../hooks/useWebSocketEvent.tsx";
 import { IError } from "../interfaces/domain/IError.tsx";
-import { useEnvironmentSyncWebSocketHandlers } from "../handlers/useEnvironmentSyncWebSocketHandlers.ts";
+import { useEnvironmentSyncErrorsWebSocketHandlers } from "../handlers/useEnvironmentSyncErrorsWebSocketHandlers.ts";
 
 const useSwrGetEnvironmentSyncErrors = (environmentId?: number, options: SWRConfiguration<IError[]> = {}) =>
     useSWR<IError[]>(environmentId ? ["useSwrGetEnvironmentSyncErrors", environmentId] : null, {
@@ -18,7 +18,7 @@ export const useGetEnvironmentSyncErrors = () => {
 
     const { data, error, isLoading, mutate } = useSwrGetEnvironmentSyncErrors(environment?.id);
 
-    const { handleSyncEnvironmentCompletedEvent } = useEnvironmentSyncWebSocketHandlers(mutate);
+    const { handleSyncEnvironmentCompletedEvent } = useEnvironmentSyncErrorsWebSocketHandlers(mutate);
     useWebSocketEvent(EEventType.SYNC_ENVIRONMENT_COMPLETED_EVENT, handleSyncEnvironmentCompletedEvent);
 
     return { getSyncErrorsState: { isLoading, error }, errorsData: data, mutateSyncErrors: mutate };

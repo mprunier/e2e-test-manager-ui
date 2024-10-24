@@ -4,7 +4,6 @@ import { keycloakUtils } from "../../../utils/Keycloak/keycloakUtils.ts";
 import { Error } from "../../Common/Error/Error.tsx";
 import { Tooltip } from "../../Common/Tooltip/Tooltip.tsx";
 import { LoadingSVG } from "../../../assets/images/LoadingSVG.tsx";
-import { useIsRunningAllTests, useLastAllTestsError } from "../../../stores/useEnvironmentStore.ts";
 import { ChartSVG } from "../../../assets/images/ChartSVG.tsx";
 import { useState } from "react";
 import { ChartMetricsHistory } from "../ChartMetrics/ChartMetricsHistory.tsx";
@@ -20,8 +19,8 @@ export const FinalMetrics = () => {
     const { finalMetricsData, getFinalMetricsState } = useGetFinalMetrics();
     const { run, runIsLoading } = useRunAllTests();
 
-    const isRunningAllTests = useIsRunningAllTests();
-    const isLastAllTestsError = useLastAllTestsError();
+    const isRunningAllTests = false; //TODO =  useIsRunningAllTests();
+    const isLastAllTestsError = false; //TODO =  useLastAllTestsError();
 
     return (
         <>

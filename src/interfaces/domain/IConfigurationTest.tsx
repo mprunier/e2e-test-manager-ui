@@ -1,5 +1,5 @@
 import { EConfigurationStatus } from "../../constants.ts";
-import { IPipelineDetails } from "./IPipelineDetails.tsx";
+import { IConfigurationSuiteOrTestPipelineDetails } from "./IConfigurationSuiteOrTestPipelineDetails.tsx";
 
 export interface IConfigurationTest {
     id: number;
@@ -11,5 +11,5 @@ export interface IConfigurationTest {
     variables?: string[];
     tags?: string[];
     lastPlayedAt?: Date;
-    pipelinesInProgress: IPipelineDetails[];
+    pipelinesInProgress: IConfigurationSuiteOrTestPipelineDetails[];
 }

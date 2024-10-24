@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { KeyedMutator } from "swr";
 import { ISearchConfigurationSuite } from "../interfaces/domain/ISearch.tsx";
 import { IEvent, IRunCompletedEvent, IRunInProgressEvent } from "../interfaces/websockets/IWebSocketEvents.ts";
-import { IPipelineDetails } from "../interfaces/domain/IPipelineDetails.tsx";
+import { IConfigurationSuiteOrTestPipelineDetails } from "../interfaces/domain/IConfigurationSuiteOrTestPipelineDetails.tsx";
 
 export const useSearchConfigurationSuiteWebSocketHandlers = (mutate: KeyedMutator<ISearchConfigurationSuite>) => {
     const handleRunCompletedEvent = useCallback(
@@ -38,7 +38,7 @@ export const useSearchConfigurationSuiteWebSocketHandlers = (mutate: KeyedMutato
                 const updatedData: ISearchConfigurationSuite = JSON.parse(JSON.stringify(currentData));
 
                 if (event.isAllTests) {
-                    const newPipeline: IPipelineDetails = { isAllTests: true };
+                    const newPipeline: IConfigurationSuiteOrTestPipelineDetails = { isAllTests: true };
                     updatedData.content = updatedData.content.map((suite) => ({
                         ...suite,
                         pipelinesInProgress: [...suite.pipelinesInProgress, newPipeline],

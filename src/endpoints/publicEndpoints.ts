@@ -7,6 +7,7 @@ import { IConfigurationSuite } from "../interfaces/domain/IConfigurationSuite.ts
 import { IConfigurationScheduler } from "../interfaces/domain/IConfigurationScheduler.tsx";
 import { IMetrics } from "../interfaces/domain/IMetrics.tsx";
 import { ITest } from "../interfaces/domain/ITest.tsx";
+import { IPipeline } from "../interfaces/domain/IPipeline.tsx";
 
 const api = `${process.env.API_URL}`;
 
@@ -82,5 +83,11 @@ export const getFinalMetricsApiRoute = (environmentId: number, options: IFetchOp
 
 export const getMetricsHistoryApiRoute = (environmentId: number, periodDate: string, options: IFetchOptions = {}) =>
     fetcher<IMetrics[]>(`${api}/metrics/history?environmentId=${environmentId}&=since=${periodDate}`, {
+        ...options,
+    });
+
+// Pipelines
+export const getAllTestsPipelinesApiRoute = (environmentId: number, options: IFetchOptions = {}) =>
+    fetcher<IPipeline[]>(`${api}/pipelines/all-tests?environmentId=${environmentId}`, {
         ...options,
     });

@@ -1,10 +1,10 @@
 import { FC, Fragment } from "react";
 import { RefreshCcw, X } from "lucide-react";
 import { Popover, Transition } from "@headlessui/react";
-import { IPipelineDetails } from "../../../interfaces/domain/IPipelineDetails.tsx";
+import { IConfigurationSuiteOrTestPipelineDetails } from "../../../interfaces/domain/IConfigurationSuiteOrTestPipelineDetails.tsx";
 
 interface TestPipelineIndicatorProps {
-    pipelinesInProgress: IPipelineDetails[];
+    pipelinesInProgress: IConfigurationSuiteOrTestPipelineDetails[];
     onCancelPipeline: (id: string) => void;
     cancelIsLoading?: boolean;
 }

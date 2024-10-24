@@ -36,7 +36,7 @@ export const EventProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
             websocket.onclose = () => {
                 console.info("Events WebSocket Disconnected - Environment Id", environment?.id);
-                const reconnectDelay = firstReconnect.current ? 0 : 10000;
+                const reconnectDelay = firstReconnect.current ? 0 : 5000;
                 setTimeout(() => {
                     if (environment?.id === environmentRef.current) {
                         console.log("Attempting to reconnect... Environment Id", environment?.id);

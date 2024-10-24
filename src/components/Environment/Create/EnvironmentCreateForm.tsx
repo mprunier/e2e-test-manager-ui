@@ -74,7 +74,7 @@ export const EnvironmentCreateForm = (props: IParams) => {
 
             <div className="flex flex-col space-y-2">
                 <label htmlFor="maxParallelTestNumber" className="text-sm font-medium text-gray-700">
-                    Max Parallel Test Number
+                    Max Parallel Test Number (When all tests are run)
                 </label>
                 <input
                     id="maxParallelTestNumber"

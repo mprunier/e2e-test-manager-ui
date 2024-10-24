@@ -11,6 +11,7 @@ interface IEnvironmentStore {
     setEnvironmentData: (environmentData: IEnvironment | undefined) => void;
 }
 
+// TODO virer ce store qui ne fait plus sens, on en a plus besoin dans la partie search
 export const useEnvironmentStore = create<IEnvironmentStore>((set) => ({
     isLoading: false,
     setLoading: (value) => set(() => ({ isLoading: value })),
@@ -19,11 +20,3 @@ export const useEnvironmentStore = create<IEnvironmentStore>((set) => ({
     environmentData: undefined,
     setEnvironmentData: (value) => set(() => ({ environmentData: value })),
 }));
-
-export const useIsRunningAllTests = () => {
-    return useEnvironmentStore((state) => state.environmentData?.isRunningAllTests || false);
-};
-
-export const useLastAllTestsError = () => {
-    return useEnvironmentStore((state) => state.environmentData?.lastAllTestsError);
-};
