@@ -16,7 +16,7 @@ export const PipelineIndicator: FC<TestPipelineIndicatorProps> = ({
 }) => {
     return (
         <Popover className="relative inline-flex">
-            {({ open }) => (
+            {({ open, close }) => (
                 <>
                     <Popover.Button
                         className={`flex items-center focus:outline-none ${
@@ -64,6 +64,9 @@ export const PipelineIndicator: FC<TestPipelineIndicatorProps> = ({
                                                             onClick={() => {
                                                                 if (pipeline.id) {
                                                                     onCancelPipeline(pipeline.id);
+                                                                    if (pipelinesInProgress.length === 1) {
+                                                                        close();
+                                                                    }
                                                                 }
                                                             }}
                                                             className="ml-2 rounded-full p-1 text-red-500 transition-colors duration-200 hover:bg-red-100"

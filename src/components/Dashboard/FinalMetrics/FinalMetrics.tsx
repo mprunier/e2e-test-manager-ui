@@ -112,7 +112,11 @@ export const FinalMetrics = () => {
 
                 {!getFinalMetricsState.isLoading && !getFinalMetricsState.error && finalMetricsData && (
                     <>
-                        <div className="flex  items-center justify-between space-y-2">
+                        <div
+                            className={`flex  items-center justify-between space-y-2 ${
+                                isRunningAllTests ? "animate-pulse" : ""
+                            }`}
+                        >
                             <ChartSVG toggleChartModal={toggleChartModal} />
                             <span
                                 onClick={toggleChartModal}
@@ -223,7 +227,7 @@ export const FinalMetrics = () => {
                         {isRunningAllTests && allTestsPipelines.length === 1 && (
                             <div className="mt-4 flex items-center justify-between rounded-lg bg-blue-50 p-3">
                                 <div className="relative text-blue-600" role="alert">
-                                    <strong className="animate-pulse text-sm text-gray-600">
+                                    <strong className="text-sm text-gray-600">
                                         All tests are currently being executed on a single pipeline !
                                     </strong>
                                 </div>
@@ -231,7 +235,7 @@ export const FinalMetrics = () => {
                         )}
                         {isRunningAllTests && allTestsPipelines.length > 1 && (
                             <div className="mt-4 flex items-center justify-between gap-2 rounded-lg bg-blue-50 p-3">
-                                <strong className="animate-pulse text-sm text-gray-600">
+                                <strong className="text-sm text-gray-600">
                                     All tests are currently being executed on {allTestsPipelines.length} pipelines !
                                 </strong>
                                 <div className="flex gap-2">
