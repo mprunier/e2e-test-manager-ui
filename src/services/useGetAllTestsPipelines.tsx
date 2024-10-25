@@ -4,7 +4,7 @@ import { getAllTestsPipelinesApiRoute } from "../endpoints/publicEndpoints.ts";
 import { EEventType } from "../interfaces/websockets/IWebSocketEvents.ts";
 import { useWebSocketEvent } from "../hooks/useWebSocketEvent.tsx";
 import { IPipeline } from "../interfaces/domain/IPipeline.tsx";
-import { useUpdateAllTestsPipelinesWebSocketHandlers } from "../handlers/useUpdateAllTestsPipelinesWebSocketHandlers.ts";
+import { useAllTestsPipelinesUpdatedWebSocketHandlers } from "../handlers/useAllTestsPipelinesUpdatedWebSocketHandlers.ts";
 
 const useSwrGetAllTestsPipelines = (environmentId?: number, options: SWRConfiguration<IPipeline[]> = {}) =>
     useSWR<IPipeline[]>(environmentId ? ["useSwrGetAllTestsPipelines", environmentId] : null, {
@@ -18,8 +18,8 @@ export const useGetAllTestsPipelines = () => {
 
     const { data, error, isLoading, mutate } = useSwrGetAllTestsPipelines(environment?.id);
 
-    const { handleUpdateAllTestsPipelinesEvent } = useUpdateAllTestsPipelinesWebSocketHandlers(mutate);
-    useWebSocketEvent(EEventType.UPDATE_ALL_TESTS_PIPELINES_COMPLETED, handleUpdateAllTestsPipelinesEvent);
+    const { handleAllTestsPipelinesUpdatedEvent } = useAllTestsPipelinesUpdatedWebSocketHandlers(mutate);
+    useWebSocketEvent(EEventType.ALL_TESTS_PIPELINES_UPDATED, handleAllTestsPipelinesUpdatedEvent);
 
     return { getAllTestsPipelinesState: { isLoading, error }, allTestsPipelines: data };
 };

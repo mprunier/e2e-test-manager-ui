@@ -5,10 +5,79 @@ import { Error } from "../../Common/Error/Error.tsx";
 import { Tooltip } from "../../Common/Tooltip/Tooltip.tsx";
 import { LoadingSVG } from "../../../assets/images/LoadingSVG.tsx";
 import { ChartSVG } from "../../../assets/images/ChartSVG.tsx";
-import { useState } from "react";
+import { FC, Fragment, useState } from "react";
 import { ChartMetricsHistory } from "../ChartMetrics/ChartMetricsHistory.tsx";
 import { useRunAllTests } from "../../../services/useRunAllTests.tsx";
 import { formatDateTime } from "../../../utils/dateUtils.ts";
+import { useGetAllTestsPipelines } from "../../../services/useGetAllTestsPipelines.tsx";
+import { EPipelineStatus } from "../../../constants.ts";
+import { AlertCircle, CheckCircle, Clock, XCircle } from "lucide-react";
+import { IPipeline } from "../../../interfaces/domain/IPipeline.tsx";
+import { Popover, Transition } from "@headlessui/react";
+
+const PipelineStatusIcon = ({ status }: { status: EPipelineStatus }) => {
+    switch (status) {
+        case EPipelineStatus.IN_PROGRESS:
+            return <Clock className="h-5 w-5 text-blue-500" />;
+        case EPipelineStatus.CANCELED:
+            return <AlertCircle className="h-5 w-5 text-yellow-500" />;
+        case EPipelineStatus.FINISH:
+            return <CheckCircle className="h-5 w-5 text-green-500" />;
+        default:
+            return <XCircle className="h-5 w-5 text-red-500" />;
+    }
+};
+
+const PipelineInfo: FC<{ pipeline: IPipeline }> = ({ pipeline }) => {
+    return (
+        <Popover className="relative">
+            {({ open }) => (
+                <>
+                    <Popover.Button
+                        className={`flex items-center focus:outline-none ${
+                            open ? "ring-2 ring-blue-500 ring-opacity-50" : ""
+                        }`}
+                    >
+                        <PipelineStatusIcon status={pipeline.status!} />
+                    </Popover.Button>
+                    <Transition
+                        as={Fragment}
+                        enter="transition ease-out duration-200"
+                        enterFrom="opacity-0 translate-y-1"
+                        enterTo="opacity-100 translate-y-0"
+                        leave="transition ease-in duration-150"
+                        leaveFrom="opacity-100 translate-y-0"
+                        leaveTo="opacity-0 translate-y-1"
+                    >
+                        <Popover.Panel className="absolute z-10 mt-2 w-max -translate-x-1/2 transform px-2">
+                            <div className="overflow-hidden rounded-lg bg-white p-4 shadow-lg ring-1 ring-black ring-opacity-5">
+                                <div className="space-y-2">
+                                    {pipeline.statusDescription && (
+                                        <p className="text-sm font-medium text-gray-600">
+                                            {pipeline.statusDescription}
+                                        </p>
+                                    )}
+                                    {pipeline.filesFilter && pipeline.filesFilter.length > 0 && (
+                                        <div>
+                                            <p className="text-sm font-medium">Files:</p>
+                                            <ul className="mt-1 list-inside list-disc">
+                                                {pipeline.filesFilter.map((file, index) => (
+                                                    <li key={index} className="text-sm text-gray-500">
+                                                        {file}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </Popover.Panel>
+                    </Transition>
+                </>
+            )}
+        </Popover>
+    );
+};
 
 export const FinalMetrics = () => {
     const [isChartModalOpen, setIsChartModalOpen] = useState(false);
@@ -18,9 +87,12 @@ export const FinalMetrics = () => {
 
     const { finalMetricsData, getFinalMetricsState } = useGetFinalMetrics();
     const { run, runIsLoading } = useRunAllTests();
+    const { getAllTestsPipelinesState, allTestsPipelines } = useGetAllTestsPipelines();
 
-    const isRunningAllTests = false; //TODO =  useIsRunningAllTests();
-    const isLastAllTestsError = false; //TODO =  useLastAllTestsError();
+    const isRunningAllTests =
+        allTestsPipelines !== undefined &&
+        allTestsPipelines.length > 0 &&
+        allTestsPipelines.some((pipeline) => pipeline.status === EPipelineStatus.IN_PROGRESS);
 
     return (
         <>
@@ -103,18 +175,26 @@ export const FinalMetrics = () => {
                                 <button
                                     type="button"
                                     onClick={run}
-                                    disabled={getFinalMetricsState.isLoading || runIsLoading || !isConnected}
+                                    disabled={
+                                        getFinalMetricsState.isLoading ||
+                                        runIsLoading ||
+                                        !isConnected ||
+                                        isRunningAllTests
+                                    }
                                     className={`mb-2 ml-8 mt-2 inline-flex h-7 w-[110px] items-center justify-center rounded text-center text-sm font-medium text-white focus:outline-none focus:ring-1 ${
-                                        getFinalMetricsState.isLoading || runIsLoading || !isConnected
+                                        getFinalMetricsState.isLoading ||
+                                        runIsLoading ||
+                                        !isConnected ||
+                                        isRunningAllTests
                                             ? "cursor-not-allowed bg-gray-300"
                                             : "bg-cyan-900 hover:bg-cyan-800 focus:ring-cyan-800"
                                     }`}
                                 >
-                                    {getFinalMetricsState.isLoading || runIsLoading ? (
+                                    {getFinalMetricsState.isLoading || runIsLoading || isRunningAllTests ? (
                                         <LoadingSVG />
                                     ) : (
                                         <>
-                                            {getFinalMetricsState.isLoading || runIsLoading
+                                            {getFinalMetricsState.isLoading || runIsLoading || isRunningAllTests
                                                 ? "Running..."
                                                 : "Run All-Tests"}
                                         </>
@@ -122,23 +202,42 @@ export const FinalMetrics = () => {
                                 </button>
                             </Tooltip>
                         </div>
-                        {isRunningAllTests && (
-                            <div className="flex  items-center justify-between space-y-2">
-                                <div
-                                    className="relative mt-3 animate-pulse rounded-md border border-blue-200 bg-blue-50 px-4 py-1 text-blue-400"
-                                    role="alert"
-                                >
-                                    <strong className="font-light">All tests are currently being executed!</strong>
+                    </>
+                )}
+
+                {getAllTestsPipelinesState.isLoading && (
+                    <div className="mt-4 flex w-3/4 justify-center rounded-md bg-blue-50 p-4">
+                        <LoadingSVG />
+                    </div>
+                )}
+
+                {getAllTestsPipelinesState.error && (
+                    <Error
+                        status={getAllTestsPipelinesState.error.status}
+                        errorMessage={getAllTestsPipelinesState.error.detail}
+                    />
+                )}
+
+                {!getAllTestsPipelinesState.isLoading && !getAllTestsPipelinesState.error && allTestsPipelines && (
+                    <>
+                        {isRunningAllTests && allTestsPipelines.length === 1 && (
+                            <div className="mt-4 flex items-center justify-between rounded-lg bg-blue-50 p-3">
+                                <div className="relative text-blue-600" role="alert">
+                                    <strong className="animate-pulse text-sm text-gray-600">
+                                        All tests are currently being executed on a single pipeline !
+                                    </strong>
                                 </div>
                             </div>
                         )}
-                        {isLastAllTestsError && !isRunningAllTests && (
-                            <div className="flex  items-center justify-between space-y-2">
-                                <div
-                                    className="relative mt-3 rounded-md border border-red-400 bg-red-50 px-4 py-1 text-red-800"
-                                    role="alert"
-                                >
-                                    <strong className="font-normal">{isLastAllTestsError}</strong>
+                        {isRunningAllTests && allTestsPipelines.length > 1 && (
+                            <div className="mt-4 flex items-center justify-between gap-2 rounded-lg bg-blue-50 p-3">
+                                <strong className="animate-pulse text-sm text-gray-600">
+                                    All tests are currently being executed on {allTestsPipelines.length} pipelines !
+                                </strong>
+                                <div className="flex gap-2">
+                                    {allTestsPipelines.map((pipeline, index) => (
+                                        <PipelineInfo key={index} pipeline={pipeline} />
+                                    ))}
                                 </div>
                             </div>
                         )}

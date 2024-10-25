@@ -7,7 +7,7 @@ import { IConfigurationSuiteOrTestPipelineDetails } from "../interfaces/domain/I
 export const useSearchConfigurationSuiteWebSocketHandlers = (mutate: KeyedMutator<ISearchConfigurationSuite>) => {
     const handleRunCompletedEvent = useCallback(
         async (data: IEvent) => {
-            console.log("Run Completed Event - Update Suites and Tests");
+            console.log("Run Completed Event - Update Suites and Tests", new Date().toLocaleString());
             const event = data as IRunCompletedEvent;
             if (event.isAllTests) {
                 await mutate();
@@ -30,8 +30,9 @@ export const useSearchConfigurationSuiteWebSocketHandlers = (mutate: KeyedMutato
 
     const handleRunInProgressEvent = useCallback(
         async (data: IEvent) => {
-            console.log("Run In Progress Event - Update Suites and Tests");
             const event = data as IRunInProgressEvent;
+
+            console.log("Run In Progress Event - Update Suites and Tests", new Date().toLocaleString());
 
             await mutate((currentData) => {
                 if (!currentData) return;
@@ -61,7 +62,7 @@ export const useSearchConfigurationSuiteWebSocketHandlers = (mutate: KeyedMutato
     );
 
     const handleSyncEnvironmentCompletedEvent = useCallback(async () => {
-        console.log("Sync Environment Completed Event - Update Suites and Tests");
+        console.log("Sync Environment Completed Event - Update Suites and Tests", new Date().toLocaleString());
         await mutate();
     }, [mutate]);
 

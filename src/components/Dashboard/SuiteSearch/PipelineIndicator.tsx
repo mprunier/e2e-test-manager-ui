@@ -49,7 +49,7 @@ export const PipelineIndicator: FC<TestPipelineIndicatorProps> = ({
                                     <ul className="space-y-2">
                                         {pipelinesInProgress.map((pipeline) => (
                                             <li
-                                                key={pipeline.id}
+                                                key={pipeline.id ?? "all-tests"}
                                                 className="flex items-center justify-between rounded-3xl border-b bg-gray-100 px-4 py-2 text-sm last:border-b-0"
                                             >
                                                 {pipeline.id && (

@@ -35,33 +35,5 @@ export const useGetEnvironmentDetails = () => {
     const { handleSyncEnvironmentCompletedEvent } = useEnvironmentDetailsWebSocketHandlers(mutate);
     useWebSocketEvent(EEventType.SYNC_ENVIRONMENT_COMPLETED_EVENT, handleSyncEnvironmentCompletedEvent);
 
-    // const handleAllTestsRunInProgressEvent = useCallback(async () => {
-    //     console.log("All Tests Run In Progress Event - Update Environment");
-    //     await mutate((currentData) => {
-    //         if (!currentData) return;
-    //         const updatedData = { ...currentData };
-    //         // updatedData.isRunningAllTests = true; // TODO idem ici : mutate au total
-    //         return updatedData;
-    //     }, false);
-    // }, [mutate]);
-    // useWebSocketEvent(EEventType.ALL_TESTS_RUN_IN_PROGRESS_EVENT, handleAllTestsRunInProgressEvent);
-    //
-    // // TODO: dépalcer ce hlander dans un autre qui gère la liste de spipelines de tous les tests en cours
-    // const handleAllTestsRunCompletedEvent = useCallback(
-    //     (data: IEvent) => {
-    //         console.log("All Tests Run Completed Event - Update Environment");
-    //         // const event = data as IAllTestsRunCompletedEvent;
-    //         mutate((currentData) => {
-    //             if (!currentData) return;
-    //             const updatedData = { ...currentData };
-    //             // updatedData.isRunningAllTests = false;
-    //             // updatedData.lastAllTestsError = event.lastAllTestsError;
-    //             return updatedData;
-    //         }, false).then();
-    //     },
-    //     [mutate],
-    // );
-    // useWebSocketEvent(EEventType.ALL_TESTS_RUN_COMPLETED_EVENT, handleAllTestsRunCompletedEvent);
-
     return {};
 };
