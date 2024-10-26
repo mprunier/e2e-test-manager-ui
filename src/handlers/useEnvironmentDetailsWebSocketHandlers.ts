@@ -6,7 +6,7 @@ import { IEnvironment } from "../interfaces/domain/IEnvironment.ts";
 export const useEnvironmentDetailsWebSocketHandlers = (mutate: KeyedMutator<IEnvironment>) => {
     const handleSyncEnvironmentCompletedEvent = useCallback(
         async (data: IEvent) => {
-            console.log("Sync Environment Completed Event - Update Environment", new Date().toLocaleString(), data);
+            console.log("Sync Environment Completed Event - Update Environment");
             const event = data as ISyncEnvironmentCompletedEvent;
             await mutate(event.environment, false);
         },

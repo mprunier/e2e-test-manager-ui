@@ -128,12 +128,10 @@ export const SearchBar = (props: IParams) => {
             value: test.id.toString(),
             label: test.title,
         })) || [];
-    const statusOptions = Object.entries(EConfigurationStatus)
-        .filter(([, value]) => value !== EConfigurationStatus.NEW)
-        .map(([, value]) => ({
-            value,
-            label: getStatusViewer(value),
-        }));
+    const statusOptions = Object.entries(EConfigurationStatus).map(([, value]) => ({
+        value,
+        label: getStatusViewer(value),
+    }));
 
     return (
         <div className="mb-8 rounded-2xl bg-gray-50 p-2 pt-4 shadow-sm">
@@ -166,6 +164,7 @@ export const SearchBar = (props: IParams) => {
                         value={tagsOptions.find((opt) => opt.value === formValues.configurationTestTag)}
                         onChange={handleTagChange}
                         placeholder="Select tag..."
+                        noOptionPlaceholder={"No tags found..."}
                         isLoading={tagsLoading}
                         isError={tagsError}
                     />
@@ -177,6 +176,7 @@ export const SearchBar = (props: IParams) => {
                         value={suitesOptions.find((opt) => opt.value === formValues.configurationSuiteId)}
                         onChange={handleSuiteChange}
                         placeholder="Select Suite..."
+                        noOptionPlaceholder={"No suite found..."}
                         isLoading={suitesLoading}
                         isError={suitesError}
                     />
@@ -188,6 +188,7 @@ export const SearchBar = (props: IParams) => {
                         value={testsOptions.find((opt) => opt.value === formValues.configurationTestId)}
                         onChange={handleTestChange}
                         placeholder="Select Test..."
+                        noOptionPlaceholder={"No test found..."}
                         isLoading={testsLoading}
                         isError={testsError}
                     />
@@ -199,6 +200,7 @@ export const SearchBar = (props: IParams) => {
                         value={filesOptions.find((opt) => opt.value === formValues.file)}
                         onChange={handleFileChange}
                         placeholder="Select File..."
+                        noOptionPlaceholder={"No file found..."}
                         isLoading={filesLoading}
                         isError={filesError}
                     />

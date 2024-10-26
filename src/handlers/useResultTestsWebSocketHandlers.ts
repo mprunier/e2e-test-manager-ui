@@ -4,7 +4,7 @@ import { ITest } from "../interfaces/domain/ITest.tsx";
 
 export const useResultTestsWebSocketHandlers = (mutate: KeyedMutator<ITest[]>) => {
     const handleRunCompletedEvent = useCallback(async () => {
-        console.log("Run Completed Event - Update Result Test", new Date().toLocaleString());
+        console.log("Run Completed Event - Update Result Test");
         await mutate();
     }, [mutate]);
 

@@ -190,9 +190,10 @@ export const FinalMetrics: FC = () => {
                             {allTestsPipelines.length > 1 ? "s" : ""} !
                         </strong>
                         <div className="flex gap-2 pl-2">
-                            {allTestsPipelines.map((pipeline, index) => (
-                                <PipelineInfo key={index} pipeline={pipeline} />
-                            ))}
+                            {allTestsPipelines.length > 1 &&
+                                allTestsPipelines.map((pipeline, index) => (
+                                    <PipelineInfo key={index} pipeline={pipeline} />
+                                ))}
                         </div>
                     </div>
                 )}

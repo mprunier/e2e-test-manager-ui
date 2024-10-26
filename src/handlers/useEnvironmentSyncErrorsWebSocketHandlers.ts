@@ -6,7 +6,7 @@ import { IError } from "../interfaces/domain/IError.tsx";
 export const useEnvironmentSyncErrorsWebSocketHandlers = (mutate: KeyedMutator<IError[]>) => {
     const handleSyncEnvironmentCompletedEvent = useCallback(
         async (data: IEvent) => {
-            console.log("Sync Environment Completed Event - Update Sync Errors", new Date().toLocaleString());
+            console.log("Sync Environment Completed Event - Update Sync Errors");
             const event = data as ISyncEnvironmentCompletedEvent;
             await mutate(event.syncErrors, false);
         },

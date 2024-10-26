@@ -11,6 +11,7 @@ interface SelectWithSearchProps {
     value: Option | null | undefined;
     onChange: (value: Option | null) => void;
     placeholder?: string;
+    noOptionPlaceholder?: string;
     disabled?: boolean;
     isLoading?: boolean;
     isError?: boolean;
@@ -21,6 +22,7 @@ export const SelectWithSearch: FC<SelectWithSearchProps> = ({
     value,
     onChange,
     placeholder = "Select an option",
+    noOptionPlaceholder = "No option...",
     disabled,
     isLoading,
     isError,
@@ -31,7 +33,10 @@ export const SelectWithSearch: FC<SelectWithSearchProps> = ({
     const selectRef = useRef<HTMLDivElement>(null);
     const [dropdownStyle, setDropdownStyle] = useState<CSSProperties>({});
 
-    const toggleSelect = () => setIsOpen(!isOpen);
+    const toggleSelect = () => {
+        if (options.length === 0) return; // Prevent opening if no options
+        setIsOpen(!isOpen);
+    };
 
     const clearValue = () => {
         onChange(null);
@@ -56,7 +61,6 @@ export const SelectWithSearch: FC<SelectWithSearchProps> = ({
                 const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
                 const safeViewportWidth = viewportWidth - scrollbarWidth - 16;
 
-                // Calculate content width
                 const tempDiv = document.createElement("div");
                 tempDiv.style.position = "absolute";
                 tempDiv.style.visibility = "hidden";
@@ -105,6 +109,66 @@ export const SelectWithSearch: FC<SelectWithSearchProps> = ({
         };
     }, [selectRef]);
 
+    const renderContent = () => {
+        if (isLoading) {
+            return (
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform">
+                    <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
+                </div>
+            );
+        }
+
+        if (isError) {
+            return (
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform">
+                    <span className="text-center font-bold text-red-300">Error loading...</span>
+                </div>
+            );
+        }
+
+        if (options.length === 0) {
+            return (
+                <div className="flex w-full items-center">
+                    <Search className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                    <span className="flex-1 px-2 text-gray-300">{noOptionPlaceholder}</span>
+                </div>
+            );
+        }
+
+        return (
+            <>
+                <Search className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                <div className="relative flex-1">
+                    <input
+                        disabled={disabled}
+                        type="text"
+                        placeholder={placeholder}
+                        value={value ? value.label : query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        onClick={toggleSelect}
+                        className={`w-full truncate bg-transparent px-2 font-medium text-cyan-900 outline-none ${
+                            disabled ? "cursor-not-allowed" : ""
+                        }`}
+                    />
+                </div>
+                <div className="flex flex-shrink-0 items-center gap-1">
+                    {value && (
+                        <button onClick={clearValue} className="rounded-full p-1 hover:bg-gray-200" type="button">
+                            <X className="h-4 w-4 text-gray-400" />
+                        </button>
+                    )}
+                    <button onClick={toggleSelect} className="rounded-full p-1 hover:bg-gray-200" type="button">
+                        {isOpen ? (
+                            <ChevronUp className="h-4 w-4 text-gray-400" />
+                        ) : (
+                            <ChevronDown className="h-4 w-4 text-gray-400" />
+                        )}
+                    </button>
+                </div>
+            </>
+        );
+    };
+
     return (
         <div className="relative w-full" ref={selectRef}>
             <div
@@ -112,52 +176,9 @@ export const SelectWithSearch: FC<SelectWithSearchProps> = ({
                     isError ? "bg-red-50" : disabled ? "bg-gray-50" : "bg-white"
                 } px-2`}
             >
-                {isLoading ? (
-                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform">
-                        <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
-                    </div>
-                ) : isError ? (
-                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform">
-                        <span className="text-center font-bold text-red-300">Error loading...</span>
-                    </div>
-                ) : (
-                    <>
-                        <Search className="h-4 w-4 flex-shrink-0 text-gray-400" />
-                        <div className="relative flex-1">
-                            <input
-                                disabled={disabled}
-                                type="text"
-                                placeholder={placeholder}
-                                value={value ? value.label : query}
-                                onChange={(e) => setQuery(e.target.value)}
-                                onClick={toggleSelect}
-                                className={`w-full truncate bg-transparent px-2 font-medium text-cyan-900 outline-none ${
-                                    disabled ? "cursor-not-allowed" : ""
-                                }`}
-                            />
-                        </div>
-                        <div className="flex flex-shrink-0 items-center gap-1">
-                            {value && (
-                                <button
-                                    onClick={clearValue}
-                                    className="rounded-full p-1 hover:bg-gray-200"
-                                    type="button"
-                                >
-                                    <X className="h-4 w-4 text-gray-400" />
-                                </button>
-                            )}
-                            <button onClick={toggleSelect} className="rounded-full p-1 hover:bg-gray-200" type="button">
-                                {isOpen ? (
-                                    <ChevronUp className="h-4 w-4 text-gray-400" />
-                                ) : (
-                                    <ChevronDown className="h-4 w-4 text-gray-400" />
-                                )}
-                            </button>
-                        </div>
-                    </>
-                )}
+                {renderContent()}
             </div>
-            {isOpen && !isLoading && !isError && (
+            {isOpen && !isLoading && !isError && options.length > 0 && (
                 <ul
                     className="absolute z-10 mt-1 max-h-[500px] overflow-y-auto rounded-xl border bg-white shadow-lg"
                     style={dropdownStyle}
