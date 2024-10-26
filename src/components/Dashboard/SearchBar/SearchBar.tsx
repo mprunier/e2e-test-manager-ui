@@ -209,7 +209,7 @@ export const SearchBar = (props: IParams) => {
                         options={statusOptions}
                         value={statusOptions.find((opt) => opt.value === formValues.status)}
                         onChange={handleStatusChange}
-                        placeholder="Select Suite Status..."
+                        placeholder="Select Status..."
                     />
                 </div>
             </div>

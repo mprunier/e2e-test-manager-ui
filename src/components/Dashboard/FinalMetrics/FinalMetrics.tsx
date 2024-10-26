@@ -11,14 +11,14 @@ import { useRunAllTests } from "../../../services/useRunAllTests.tsx";
 import { formatDateTime } from "../../../utils/dateUtils.ts";
 import { useGetAllTestsPipelines } from "../../../services/useGetAllTestsPipelines.tsx";
 import { EPipelineStatus } from "../../../constants.ts";
-import { AlertCircle, CheckCircle, Clock, XCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, RefreshCcw, XCircle } from "lucide-react";
 import { IPipeline } from "../../../interfaces/domain/IPipeline.tsx";
 import { Popover, Transition } from "@headlessui/react";
 
 const PipelineStatusIcon = ({ status }: { status: EPipelineStatus }) => {
     switch (status) {
         case EPipelineStatus.IN_PROGRESS:
-            return <Clock className="h-5 w-5 text-blue-500" />;
+            return <RefreshCcw className="h-5 w-5 animate-spin text-blue-500" />;
         case EPipelineStatus.CANCELED:
             return <AlertCircle className="h-5 w-5 text-yellow-500" />;
         case EPipelineStatus.FINISH:
@@ -157,13 +157,13 @@ export const FinalMetrics = () => {
                                             Tests: {finalMetricsData.tests ?? "-"}
                                         </span>
                                         <span className="ml-8 font-bold text-green-500">
-                                            Pass Percentage: {finalMetricsData.passPercent ?? "-"}%
+                                            Success: {finalMetricsData.passes ?? "-"}
                                         </span>
-                                        <span className="ml-8 font-bold text-lime-500">
-                                            Passes: {finalMetricsData.passes ?? "-"}
+                                        <span className="ml-1 font-bold text-green-500">
+                                            ({finalMetricsData.passPercent ?? "-"}%)
                                         </span>
                                         <span className="ml-8 font-bold text-red-500">
-                                            Failures: {finalMetricsData.failures ?? "-"}
+                                            Failed: {finalMetricsData.failures ?? "-"}
                                         </span>
                                         <span className="ml-8 font-bold text-blue-500">
                                             Skipped: {finalMetricsData.skipped ?? "-"}
