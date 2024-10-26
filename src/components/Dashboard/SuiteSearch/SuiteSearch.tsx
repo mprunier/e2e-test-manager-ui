@@ -1,5 +1,4 @@
 import { Fragment, useState } from "react";
-
 import { classNameStatus, getStatusViewer } from "../../../utils/statusUtils.ts";
 import { classNames } from "../../../utils/classNameUtils.ts";
 import RunActionButton from "../RunActionButton/RunActionButton.tsx";
@@ -50,7 +49,9 @@ export const SuiteSearch = () => {
                         className={`mt-1 flex h-9 cursor-pointer items-center rounded-xl bg-cyan-50 p-2`}
                         onClick={() => setSelectedTest(selectedTest?.id === test.id ? null : test)}
                     >
-                        <div className={`mr-4 flex w-8/12 flex-none items-start text-sm font-medium text-cyan-600`}>
+                        <div
+                            className={`mr-4 flex w-7/12 flex-none items-start text-sm font-medium text-cyan-600 lg:w-8/12`}
+                        >
                             <Tooltip
                                 disabled={!test.tags || test.tags.length === 0}
                                 content={test.tags ? getTagsContent(test.tags) : undefined}
@@ -64,7 +65,7 @@ export const SuiteSearch = () => {
                             <TruncatedTextWithTooltip text={test.title} className="w-full truncate pr-6" />
                         </div>
 
-                        <div className="ml-0.5 flex w-2/12 flex-none items-start">
+                        <div className="ml-0.5 flex w-3/12 flex-none items-start lg:w-2/12">
                             <Tooltip
                                 disabled={!test.lastPlayedAt}
                                 content={`${test.lastPlayedAt ? formatDateTime(new Date(test.lastPlayedAt)) : ``}`}
@@ -96,7 +97,7 @@ export const SuiteSearch = () => {
                                 </div>
                             )}
                         </div>
-                        <div className="flex w-2/12 flex-none items-start  justify-between">
+                        <div className="flex w-2/12 flex-none items-start justify-between">
                             <RunActionButton
                                 configurationTestId={test.id}
                                 disabled={
@@ -132,7 +133,7 @@ export const SuiteSearch = () => {
                         className={`mt-4 flex h-12 items-center rounded-xl bg-indigo-50 p-2`}
                         style={{ cursor: "pointer" }}
                     >
-                        <div className={"mr-4 flex w-8/12 flex-none flex-col items-start"}>
+                        <div className={"mr-4 flex w-7/12 flex-none flex-col items-start 2xl:w-8/12"}>
                             <TruncatedTextWithTooltip
                                 text={suite.title}
                                 className="m-1 w-full text-sm font-medium text-cyan-800"
@@ -143,7 +144,7 @@ export const SuiteSearch = () => {
                             />
                         </div>
 
-                        <div className="flex w-2/12 flex-none items-start">
+                        <div className="flex w-3/12 flex-none items-start 2xl:w-2/12">
                             <Tooltip
                                 disabled={!suite.lastPlayedAt}
                                 content={`${suite.lastPlayedAt ? formatDateTime(new Date(suite.lastPlayedAt)) : ``}`}

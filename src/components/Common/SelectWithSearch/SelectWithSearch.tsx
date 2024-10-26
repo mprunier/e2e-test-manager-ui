@@ -109,7 +109,7 @@ export const SelectWithSearch: FC<SelectWithSearchProps> = ({
         <div className="relative w-full" ref={selectRef}>
             <div
                 className={`flex h-10 w-full items-center justify-between rounded-xl border ${
-                    isError ? "bg-red-50" : disabled ? "bg-gray-50" : "bg-purple-50"
+                    isError ? "bg-red-50" : disabled ? "bg-gray-50" : "bg-white"
                 } px-2`}
             >
                 {isLoading ? (
