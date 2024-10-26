@@ -133,7 +133,7 @@ export const SuiteSearch = () => {
                         className={`mt-4 flex h-12 items-center rounded-xl bg-indigo-50 p-2`}
                         style={{ cursor: "pointer" }}
                     >
-                        <div className={"mr-4 flex w-7/12 flex-none flex-col items-start 2xl:w-8/12"}>
+                        <div className={"mr-4 flex w-8/12 flex-none flex-col items-start"}>
                             <TruncatedTextWithTooltip
                                 text={suite.title}
                                 className="m-1 w-full text-sm font-medium text-cyan-800"
@@ -144,7 +144,7 @@ export const SuiteSearch = () => {
                             />
                         </div>
 
-                        <div className="flex w-3/12 flex-none items-start 2xl:w-2/12">
+                        <div className="flex w-2/12 flex-none items-start">
                             <Tooltip
                                 disabled={!suite.lastPlayedAt}
                                 content={`${suite.lastPlayedAt ? formatDateTime(new Date(suite.lastPlayedAt)) : ``}`}

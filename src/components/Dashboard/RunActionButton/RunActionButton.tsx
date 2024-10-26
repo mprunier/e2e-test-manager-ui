@@ -77,7 +77,7 @@ const RunActionButton = (props: IParams) => {
                     type="button"
                     onClick={handleClick}
                     disabled={isLoading || disabled}
-                    className={`mr-2 inline-flex h-7 w-[90px] items-center justify-center rounded text-center text-sm font-medium text-white focus:outline-none focus:ring-1 ${
+                    className={`ml-10 inline-flex h-7 w-[90px] items-center justify-center rounded text-center text-sm font-medium text-white focus:outline-none focus:ring-1 ${
                         isLoading || disabled
                             ? "cursor-not-allowed bg-gray-300"
                             : "bg-cyan-900 hover:bg-cyan-800 focus:ring-cyan-800"
