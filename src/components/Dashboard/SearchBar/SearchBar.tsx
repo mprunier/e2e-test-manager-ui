@@ -13,7 +13,7 @@ interface IParams {
     formValues: {
         configurationSuiteId: string;
         configurationTestId: string;
-        configurationTestTag: string;
+        tag: string;
         status: string;
         file: string;
         allNotSuccess: boolean;
@@ -49,7 +49,7 @@ export const SearchBar = (props: IParams) => {
             configurationTestId: "",
             configurationSuiteId: "",
             file: "",
-            configurationTestTag: "",
+            tag: "",
             allNotSuccess: checked,
             status: "",
             page: 0,
@@ -61,7 +61,7 @@ export const SearchBar = (props: IParams) => {
             configurationTestId: "",
             configurationSuiteId: "",
             file: "",
-            configurationTestTag: selectedOption ? selectedOption.value.toString() : "",
+            tag: selectedOption ? selectedOption.value.toString() : "",
             allNotSuccess: false,
             page: 0,
         });
@@ -72,7 +72,7 @@ export const SearchBar = (props: IParams) => {
             file: selectedOption ? selectedOption.value.toString() : "",
             configurationTestId: "",
             configurationSuiteId: "",
-            configurationTestTag: "",
+            tag: "",
             allNotSuccess: false,
             page: 0,
         });
@@ -83,7 +83,7 @@ export const SearchBar = (props: IParams) => {
             configurationSuiteId: selectedOption ? selectedOption.value.toString() : "",
             configurationTestId: "",
             file: "",
-            configurationTestTag: "",
+            tag: "",
             allNotSuccess: false,
             page: 0,
         });
@@ -94,7 +94,7 @@ export const SearchBar = (props: IParams) => {
             configurationTestId: selectedOption ? selectedOption.value.toString() : "",
             configurationSuiteId: "",
             file: "",
-            configurationTestTag: "",
+            tag: "",
             allNotSuccess: false,
             page: 0,
         });
@@ -161,7 +161,7 @@ export const SearchBar = (props: IParams) => {
                 <div className="w-2/12">
                     <SelectWithSearch
                         options={tagsOptions}
-                        value={tagsOptions.find((opt) => opt.value === formValues.configurationTestTag)}
+                        value={tagsOptions.find((opt) => opt.value === formValues.tag)}
                         onChange={handleTagChange}
                         placeholder="Select tag..."
                         noOptionPlaceholder={"No tags found..."}

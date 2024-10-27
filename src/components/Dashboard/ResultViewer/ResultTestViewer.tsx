@@ -108,7 +108,7 @@ export const ResultTestViewer = (props: IParams) => {
                                                 <Tooltip
                                                     content={informationTitle(result)}
                                                     position="bottom"
-                                                    size={"w-60"}
+                                                    size={"w-max"}
                                                 >
                                                     <svg
                                                         xmlns="http://www.w3.org/2000/svg"

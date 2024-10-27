@@ -12,6 +12,7 @@ export interface IConfigurationSuite {
     lastPlayedAt?: Date;
     hasNewTest: boolean;
     pipelinesInProgress: IConfigurationSuiteOrTestPipelineDetails[];
+    group?: string;
 }
 
 export enum EConfigurationSuiteSortField {

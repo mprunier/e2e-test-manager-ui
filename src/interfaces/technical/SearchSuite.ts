@@ -11,7 +11,7 @@ export interface FormValues extends StoredPaginationSettings {
     file: string;
     configurationSuiteId: string;
     configurationTestId: string;
-    configurationTestTag: string;
+    tag: string;
     status: string;
     allNotSuccess: boolean;
 }

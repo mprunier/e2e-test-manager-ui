@@ -21,8 +21,9 @@ const StatusIcon: FC<{ status: EPipelineStatus }> = ({ status }) => {
             return <RefreshCcw className="h-5 w-5 animate-spin text-blue-500" />;
         case EPipelineStatus.CANCELED:
             return <AlertCircle className="h-5 w-5 text-yellow-500" />;
-        case EPipelineStatus.FINISH:
+        case EPipelineStatus.SUCCESS:
             return <CheckCircle className="h-5 w-5 text-green-500" />;
+        case EPipelineStatus.FAILED:
         case EPipelineStatus.SYSTEM_ERROR:
         case EPipelineStatus.NO_REPORT_ERROR:
         default:

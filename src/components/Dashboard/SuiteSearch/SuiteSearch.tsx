@@ -70,6 +70,7 @@ export const SuiteSearch = () => {
                                 disabled={!test.lastPlayedAt}
                                 content={`${test.lastPlayedAt ? formatDateTime(new Date(test.lastPlayedAt)) : ``}`}
                                 position="bottom"
+                                size={"w-40"}
                             >
                                 <span
                                     className={classNames(
@@ -138,10 +139,17 @@ export const SuiteSearch = () => {
                                 text={suite.title}
                                 className="m-1 w-full text-sm font-medium text-cyan-800"
                             />
-                            <TruncatedTextWithTooltip
-                                text={suite.file}
-                                className="mb-1 w-full truncate pl-1 pr-3 text-xs text-amber-800"
-                            />
+                            <div className="flex items-center gap-1">
+                                {suite.group && (
+                                    <span className="mb-1 rounded-3xl bg-indigo-200 px-1 text-xs font-medium text-white">
+                                        {suite.group}
+                                    </span>
+                                )}
+                                <TruncatedTextWithTooltip
+                                    text={suite.file}
+                                    className="mb-1 w-full truncate pl-1 pr-3 text-xs text-amber-800"
+                                />
+                            </div>
                         </div>
 
                         <div className="flex w-2/12 flex-none items-start">

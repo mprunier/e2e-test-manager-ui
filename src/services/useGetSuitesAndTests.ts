@@ -35,7 +35,7 @@ export const useInitialFormValues = (
         file: searchParams.get("file") || "",
         configurationSuiteId: searchParams.get("suiteId") || "",
         configurationTestId: searchParams.get("testId") || "",
-        configurationTestTag: searchParams.get("tag") || "",
+        tag: searchParams.get("tag") || "",
         status: searchParams.get("status") || "",
         allNotSuccess: searchParams.get("unsuccessful") === "true",
         page: parseInt(searchParams.get("page") || "0"),
@@ -64,7 +64,7 @@ export const useUrlParamsHandler = (
             const paramMapping = {
                 configurationSuiteId: "suiteId",
                 configurationTestId: "testId",
-                configurationTestTag: "tag",
+                tag: "tag",
                 allNotSuccess: "unsuccessful",
             };
 
