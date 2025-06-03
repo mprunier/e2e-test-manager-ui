@@ -1,7 +1,7 @@
 export const keycloakConfig = {
-    clientId: process.env.KEYCLOAK_CLIENT,
+    clientId: "e2e-testing-manager-ui",
     "enable-cors": true,
-    realm: process.env.KEYCLOAK_REALM,
+    realm: 'galaxion',
     "ssl-required": "all",
-    url: process.env.KEYCLOAK_URL,
+    url: "https://keycloak.dev.epicmt.internal/auth",
 };
