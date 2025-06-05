@@ -6,11 +6,11 @@ import { SelectWithSearch } from "../../Common/SelectWithSearch/SelectWithSearch
 import { useRunByGroup } from "../../../services/useRunByGroup.ts";
 import { useGetSearchSelects } from "../../../services/useGetSearchSelects.ts";
 import { ISelectOption } from "../../../interfaces/ISelectOption.tsx";
+import { useIsRunningByGroup } from "../../../hooks/useIsRunningByGroup.ts";
 
 interface IParams {
     disabled?: boolean;
     isConnected?: boolean;
-    isTestLoading?: boolean;
 }
 
 interface GroupOption {
@@ -18,8 +18,9 @@ interface GroupOption {
     label: string;
 }
 
-const RunAllByGroupButton = (props: IParams) => {
-    const { disabled, isConnected, isTestLoading } = props;
+export const RunAllByGroupButton = (props: IParams) => {
+    const { disabled, isConnected } = props;
+    const { isRunningByGroup } = useIsRunningByGroup();
     const { isLoading, runByGroup, isModalOpen, setIsModalOpen, modalRef } = useRunByGroup();
     const [selectedGroup, setSelectedGroup] = useState<GroupOption | null>(null);
     const { criteriaData } = useGetSearchSelects();
@@ -69,7 +70,7 @@ const RunAllByGroupButton = (props: IParams) => {
                             : "bg-indigo-700 hover:bg-indigo-600 focus:ring-indigo-600"
                     }`}
                 >
-                    {isLoading || isTestLoading ? <LoadingSVG /> : "Run by Group"}
+                    {isLoading || isRunningByGroup ? <LoadingSVG /> : "Run by Group"}
                 </button>
             </Tooltip>
             {isModalOpen && (
@@ -125,7 +126,7 @@ const RunAllByGroupButton = (props: IParams) => {
                                             : "bg-indigo-700 hover:bg-indigo-600 focus:ring-indigo-600"
                                     }`}
                                 >
-                                    {isLoading || isTestLoading ? <LoadingSVG /> : "Run with this group"}
+                                    {isLoading || isRunningByGroup ? <LoadingSVG /> : "Run with this group"}
                                 </button>
                             </div>
                         </form>
@@ -135,5 +136,3 @@ const RunAllByGroupButton = (props: IParams) => {
         </>
     );
 };
-
-export default RunAllByGroupButton;

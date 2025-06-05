@@ -24,14 +24,14 @@ export const PipelineIndicator: FC<TestPipelineIndicatorProps> = ({
                         }`}
                     >
                         <div className="relative inline-flex cursor-pointer items-center">
-                            {pipelinesInProgress.length > 0 && (
-                                <>
-                                    <RefreshCcw className={`h-6 w-6 ${open ? "" : "animate-spin"} text-blue-500`} />
+                            <>
+                                <RefreshCcw className={`h-6 w-6 ${open ? "" : "animate-spin"} text-blue-500`} />
+                                {pipelinesInProgress.length > 0 && (
                                     <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full text-xs font-bold text-blue-600">
                                         {pipelinesInProgress.length}
                                     </span>
-                                </>
-                            )}
+                                )}
+                            </>
                         </div>
                     </Popover.Button>
                     <Transition
@@ -46,44 +46,57 @@ export const PipelineIndicator: FC<TestPipelineIndicatorProps> = ({
                         <Popover.Panel className="absolute z-10 mt-3 w-[400px] -translate-x-1/2 transform px-4 sm:px-0 lg:max-w-3xl">
                             <div className="overflow-hidden rounded-lg shadow-lg ring-1 ring-black ring-opacity-5">
                                 <div className="relative bg-white p-4">
-                                    <ul className="space-y-2">
-                                        {pipelinesInProgress.map((pipeline) => (
-                                            <li
-                                                key={pipeline.id ?? "all-tests"}
-                                                className="flex items-center justify-between rounded-3xl border-b bg-gray-100 px-4 py-2 text-sm last:border-b-0"
-                                            >
-                                                {pipeline.id && pipeline.type !== WorkerType.ALL && (
-                                                    <>
-                                                        <span className="text-gray-700">
-                                                            Pipeline run by{" "}
-                                                            <span className="font-semibold">{pipeline.createdBy}</span>.
-                                                        </span>
+                                    {pipelinesInProgress.length > 0 ? (
+                                        <ul className="space-y-2">
+                                            {pipelinesInProgress.map((pipeline) => (
+                                                <li
+                                                    key={pipeline.id ?? "all-tests"}
+                                                    className="flex items-center justify-between rounded-3xl border-b bg-gray-100 px-4 py-2 text-sm last:border-b-0"
+                                                >
+                                                    {pipeline.id && pipeline.type !== WorkerType.ALL && pipeline.type !== WorkerType.GROUP && (
+                                                        <>
+                                                            <span className="text-gray-700">
+                                                                Pipeline run by{" "}
+                                                                <span className="font-semibold">{pipeline.createdBy}</span>.
+                                                            </span>
 
-                                                        <button
-                                                            disabled={cancelIsLoading}
-                                                            onClick={() => {
-                                                                if (pipeline.id) {
-                                                                    onCancelPipeline(pipeline.id);
-                                                                    if (pipelinesInProgress.length === 1) {
-                                                                        close();
+                                                            <button
+                                                                disabled={cancelIsLoading}
+                                                                onClick={() => {
+                                                                    if (pipeline.id) {
+                                                                        onCancelPipeline(pipeline.id);
+                                                                        if (pipelinesInProgress.length === 1) {
+                                                                            close();
+                                                                        }
                                                                     }
-                                                                }
-                                                            }}
-                                                            className="ml-2 rounded-full p-1 text-red-500 transition-colors duration-200 hover:bg-red-100"
-                                                            title="Cancel pipeline"
-                                                        >
-                                                            <X size={16} />
-                                                        </button>
-                                                    </>
-                                                )}
-                                                {pipeline.type === WorkerType.ALL && (
-                                                    <span className="text-gray-700">
-                                                        <span className="font-semibold">All tests</span> are running.
-                                                    </span>
-                                                )}
-                                            </li>
-                                        ))}
-                                    </ul>
+                                                                }}
+                                                                className="ml-2 rounded-full p-1 text-red-500 transition-colors duration-200 hover:bg-red-100"
+                                                                title="Cancel pipeline"
+                                                            >
+                                                                <X size={16} />
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                    {pipeline.type === WorkerType.ALL && (
+                                                        <span className="text-gray-700">
+                                                            <span className="font-semibold">All tests</span> are running.
+                                                        </span>
+                                                    )}
+                                                    {pipeline.type === WorkerType.GROUP && (
+                                                        <span className="text-gray-700">
+                                                            <span className="font-semibold">Group tests</span> are running.
+                                                        </span>
+                                                    )}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <div className="rounded-3xl bg-gray-100 px-4 py-2 text-sm">
+                                            <span className="text-gray-700">
+                                                <span className="font-semibold">Tests</span> are running.
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </Popover.Panel>

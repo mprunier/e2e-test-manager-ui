@@ -17,7 +17,6 @@ export const useSearchConfigurationSuiteWebSocketHandlers = (
                     const updatedData: PaginatedResponseConfigurationSuiteWithWorkerResponse = JSON.parse(
                         JSON.stringify(currentData),
                     );
-
                     if (event.workerType === WorkerType.ALL) {
                         const newWorker: WorkerResponse = {
                             id: "unknown",
@@ -37,6 +36,30 @@ export const useSearchConfigurationSuiteWebSocketHandlers = (
                                 workers: [...(test.workers || []), newWorker],
                             })),
                         }));
+                    } else if (event.workerType === WorkerType.GROUP) {
+                        const newWorker: WorkerResponse = {
+                            id: "unknown",
+                            createdAt: formatInTimeZone(
+                                new Date(),
+                                Intl.DateTimeFormat().resolvedOptions().timeZone,
+                                "yyyy-MM-dd'T'HH:mm:ssXXX",
+                            ),
+                            createdBy: "You",
+                            type: WorkerType.GROUP,
+                        };
+                        updatedData.content = updatedData.content.map((suite) => {
+                            if (suite.group === event.configurationSuiteWithWorker?.group) {
+                                return {
+                                    ...suite,
+                                    workers: [...(suite.workers || []), newWorker],
+                                    tests: suite.tests.map((test) => ({
+                                        ...test,
+                                        workers: [...(test.workers || []), newWorker],
+                                    })),
+                                };
+                            }
+                            return suite;
+                        });
                     } else if (event.workerType === WorkerType.SUITE || event.workerType === WorkerType.TEST) {
                         const index = updatedData.content.findIndex(
                             (suite) => suite.id === event.configurationSuiteWithWorker?.id,
@@ -69,6 +92,26 @@ export const useSearchConfigurationSuiteWebSocketHandlers = (
                                 updatedData.content[index] = event.configurationSuiteWithWorker;
                             }
                         }
+                        return updatedData;
+                    }, false);
+                } else if (event.workerType === WorkerType.GROUP) {
+                    await mutate((currentData) => {
+                        if (!currentData) return;
+                        const updatedData: PaginatedResponseConfigurationSuiteWithWorkerResponse = JSON.parse(
+                            JSON.stringify(currentData),
+                        );
+                        // Update all suites in the same group
+                        updatedData.content = updatedData.content.map((suite) => {
+                            if (suite.group === event.configurationSuiteWithWorker?.group) {
+                                // If the suite is in the same group, update it with the latest data
+                                return {
+                                    ...suite,
+                                    // Keep existing properties but update workers if needed
+                                    workers: event.configurationSuiteWithWorker?.workers || suite.workers,
+                                };
+                            }
+                            return suite;
+                        });
                         return updatedData;
                     }, false);
                 } else {

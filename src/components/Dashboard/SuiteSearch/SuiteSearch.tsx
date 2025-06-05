@@ -19,13 +19,14 @@ import { PipelineIndicator } from "./PipelineIndicator.tsx";
 import { useCancelWorker } from "../../../services/useCancelWorker.tsx";
 import type { ConfigurationSuiteWithWorkerResponse, ConfigurationTestWithWorkerResponse } from "../../../api";
 import { ConfigurationStatus, WorkerType } from "../../../api";
+import { useIsRunningByGroup } from "../../../hooks/useIsRunningByGroup.ts";
 
 export const SuiteSearch = () => {
     const { getSuitesAndTestsState, suitesAndTestsData, formValues, setFormValues } = useGetSuitesAndTests();
     const { cancel, cancelIsLoading } = useCancelWorker();
     const [selectedTest, setSelectedTest] = useState<ConfigurationTestWithWorkerResponse | null>(null);
     const [selectedSuite, setSelectedSuite] = useState<ConfigurationSuiteWithWorkerResponse | null>(null);
-
+    const { isRunningByGroup, runningGroup } = useIsRunningByGroup();
     const isConnected = keycloakUtils.isAuthenticated();
 
     const getTagsContent = (tags: string[]) => (
@@ -40,7 +41,7 @@ export const SuiteSearch = () => {
         </>
     );
 
-    const renderTests = (tests: ConfigurationTestWithWorkerResponse[]) => (
+    const renderTests = (tests: ConfigurationTestWithWorkerResponse[], suiteGroup?: string) => (
         <>
             {tests.map((test) => (
                 <Fragment key={test.id}>
@@ -75,7 +76,8 @@ export const SuiteSearch = () => {
                                     className={classNames(
                                         classNameStatus(test.status),
                                         `inline-block w-[140px] rounded-full px-3 py-1 text-center text-sm ${
-                                            test.workers && test.workers.length > 0
+                                            (test.workers && test.workers.length > 0) || 
+                                            (isRunningByGroup && !!suiteGroup && suiteGroup === runningGroup)
                                                 ? "animate-pulse border-2 border-blue-300"
                                                 : ""
                                         }`,
@@ -84,15 +86,15 @@ export const SuiteSearch = () => {
                                     {getStatusViewer(test.status)}
                                 </span>
                             </Tooltip>
-                            {test.workers && test.workers.length > 0 && (
+                            {(test.workers && test.workers.length > 0) || (isRunningByGroup && !!suiteGroup && suiteGroup === runningGroup) ? (
                                 <div className="pl-2 pt-1">
                                     <PipelineIndicator
-                                        pipelinesInProgress={test.workers}
+                                        pipelinesInProgress={test.workers || []}
                                         onCancelPipeline={cancel}
                                         cancelIsLoading={cancelIsLoading}
                                     />
                                 </div>
-                            )}
+                            ) : null}
                             {test.status === ConfigurationStatus.NEW && (
                                 <div className={"pl-2"}>
                                     <NewSVG />
@@ -105,11 +107,12 @@ export const SuiteSearch = () => {
                                 disabled={
                                     !isConnected ||
                                     (test.workers &&
-                                        test.workers.filter((pipeline) => pipeline.type !== WorkerType.ALL).length > 0)
+                                        test.workers.filter((pipeline) => pipeline.type !== WorkerType.ALL).length > 0) ||
+                                    (isRunningByGroup && !!suiteGroup && suiteGroup === runningGroup)
                                 }
                                 isConnected={isConnected}
                                 variables={test.variables}
-                                isTestLoading={test.status === ConfigurationStatus.IN_PROGRESS}
+                                isTestLoading={test.status === ConfigurationStatus.IN_PROGRESS || (isRunningByGroup && !!suiteGroup && suiteGroup === runningGroup)}
                             />
                             <div className="m-1 mr-6">
                                 {selectedTest?.id === test.id ? (
@@ -164,7 +167,8 @@ export const SuiteSearch = () => {
                                     className={classNames(
                                         classNameStatus(suite.status),
                                         `inline-block w-[140px] rounded-full px-3 py-1 text-center text-sm ${
-                                            suite.workers && suite.workers.length > 0
+                                            (suite.workers && suite.workers.length > 0) || 
+                                            (isRunningByGroup && suite.group && suite.group === runningGroup)
                                                 ? "animate-pulse border-2 border-blue-300"
                                                 : ""
                                         }`,
@@ -173,15 +177,15 @@ export const SuiteSearch = () => {
                                     {getStatusViewer(suite.status)}
                                 </span>
                             </Tooltip>
-                            {suite.workers && suite.workers.length > 0 && (
+                            {(suite.workers && suite.workers.length > 0) || (isRunningByGroup && !!suite.group && suite.group === runningGroup) ? (
                                 <div className="pl-2 pt-1">
                                     <PipelineIndicator
-                                        pipelinesInProgress={suite.workers}
+                                        pipelinesInProgress={suite.workers || []}
                                         onCancelPipeline={cancel}
                                         cancelIsLoading={cancelIsLoading}
                                     />
                                 </div>
-                            )}
+                            ) : null}
                             {suite.hasNewTest && (
                                 <div className={"pl-2"}>
                                     <NewSVG />
@@ -195,11 +199,12 @@ export const SuiteSearch = () => {
                                 disabled={
                                     !isConnected ||
                                     (suite.workers &&
-                                        suite.workers.filter((pipeline) => pipeline.type !== WorkerType.ALL).length > 0)
+                                        suite.workers.filter((pipeline) => pipeline.type !== WorkerType.ALL).length > 0) ||
+                                    (isRunningByGroup && !!suite.group && suite.group === runningGroup)
                                 }
                                 isConnected={isConnected}
                                 variables={suite.variables}
-                                isTestLoading={suite.status === ConfigurationStatus.IN_PROGRESS}
+                                isTestLoading={suite.status === ConfigurationStatus.IN_PROGRESS || (isRunningByGroup && !!suite.group && suite.group === runningGroup)}
                             />
                             <div className="mr-6">
                                 {selectedSuite?.id === suite.id ? (
@@ -210,7 +215,7 @@ export const SuiteSearch = () => {
                             </div>
                         </div>
                     </div>
-                    {selectedSuite?.id === suite.id && renderTests(suite.tests)}
+                    {selectedSuite?.id === suite.id && renderTests(suite.tests, suite.group)}
                 </Fragment>
             ))}
         </>
