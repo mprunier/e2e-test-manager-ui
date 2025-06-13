@@ -100,13 +100,10 @@ export const useSearchConfigurationSuiteWebSocketHandlers = (
                         const updatedData: PaginatedResponseConfigurationSuiteWithWorkerResponse = JSON.parse(
                             JSON.stringify(currentData),
                         );
-                        // Update all suites in the same group
                         updatedData.content = updatedData.content.map((suite) => {
                             if (suite.group === event.configurationSuiteWithWorker?.group) {
-                                // If the suite is in the same group, update it with the latest data
                                 return {
                                     ...suite,
-                                    // Keep existing properties but update workers if needed
                                     workers: event.configurationSuiteWithWorker?.workers || suite.workers,
                                 };
                             }
