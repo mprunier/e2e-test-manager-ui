@@ -1,7 +1,7 @@
 import { CSSProperties, FC, useEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronUp, Loader2, Search, X } from "lucide-react";
 
-interface Option {
+export interface Option {
     value: string | number;
     label: string;
 }

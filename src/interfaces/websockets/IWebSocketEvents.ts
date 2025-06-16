@@ -35,6 +35,7 @@ export interface IWorkerUpdatedEvent extends IEvent {
     status: "IN_PROGRESS" | "COMPLETED";
     workerType: WorkerType;
     configurationSuiteWithWorker: ConfigurationSuiteWithWorkerResponse;
+    groupName: string;
 }
 
 export interface ITypeAllWorkerUnitsUpdatedEvent extends IEvent {

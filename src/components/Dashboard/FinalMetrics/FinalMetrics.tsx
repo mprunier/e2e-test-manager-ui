@@ -12,6 +12,7 @@ import { useGetTypeAllWorkerUnits } from "../../../services/useGetTypeAllWorkerU
 import { AlertCircle, CheckCircle, RefreshCcw, XCircle } from "lucide-react";
 import { Popover, Transition } from "@headlessui/react";
 import { MetricsResponse, type WorkerUnitResponse, WorkerUnitStatus } from "../../../api";
+import { RunAllByGroupButton } from "../RunAllByGroupButton/RunAllByGroupButton.tsx";
 
 const StatusIcon: FC<{ status: WorkerUnitStatus }> = ({ status }) => {
     switch (status) {
@@ -163,6 +164,10 @@ export const FinalMetrics: FC = () => {
                             {runIsLoading || isRunningAllTests ? <LoadingSVG /> : "Run All-Tests"}
                         </button>
                     </Tooltip>
+                    <RunAllByGroupButton
+                        disabled={!isConnected || runIsLoading || isRunningAllTests}
+                        isConnected={isConnected}
+                    />
                 </div>
             )}
 
